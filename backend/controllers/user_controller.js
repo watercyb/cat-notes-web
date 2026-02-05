@@ -28,7 +28,7 @@ export const signup = async (req, res) => {
       })
     ).toJSON();
 
-    generateToken(res, user._id);
+    generateToken(req, res, user._id);
     delete user.password;
 
     res.status(201).json({
@@ -51,7 +51,7 @@ export const login = async (req, res) => {
         .status(400)
         .json({ success: false, message: "Invalid credentials" });
 
-    generateToken(res, user._id);
+    generateToken(req, res, user._id);
 
     const userJSON = user.toJSON();
     delete userJSON.password;

@@ -10,7 +10,7 @@ export const ratecheck = async (req, res, next) => {
     if (rate.success) {
       next();
     } else {
-      res.status(429).json("Too many requests");
+      res.status(429).json({ success: false, message: "Too many requests" });
     }
   } catch (error) {
     console.log("Error in ratecheck: ", error);
@@ -20,7 +20,13 @@ export const ratecheck = async (req, res, next) => {
 
 export const verifyToken = async (req, res, next) => {
   try {
-    const token = req.cookies.token;
+    let token;
+    if (req.headers["x-client-type"] == "android-app") {
+      token = req.headers["authorization"].split(" ")[1];
+    } else {
+      token = req.cookies.token;
+    }
+
     if (!token)
       return res
         .status(401)
