@@ -5,6 +5,7 @@ import toast from "react-hot-toast";
 const useNoteStore = create((set) => ({
   notes: [],
   isLoading: false,
+  isUploading: false,
   isRateLimited: false,
 
   getNotes: async () => {
@@ -51,25 +52,27 @@ const useNoteStore = create((set) => ({
 
   deleteNote: async (noteId) => {
     try {
-      set({isRateLimited: false });
+      set({ isRateLimited: false });
       await axiosInstance.delete(`/note/${noteId}`);
 
       set((state) => ({
         notes: state.notes.filter((note) => note._id != noteId),
       }));
       toast.success("Note deleted successfully");
+      return true;
     } catch (error) {
       if (error.response.status == 429) {
         set({ isRateLimited: true });
       } else {
         toast.error("Failed to delete note: " + error.response.data.message);
       }
+      return false;
     }
   },
 
-  updateNode: async (noteId, title, content) => {
+  updateNote: async (noteId, title, content) => {
     try {
-      set({ isLoading: true, isRateLimited: false });
+      set({ isUploading: true, isRateLimited: false });
       const res = await axiosInstance.post("/note/update", {
         noteId,
         title,
@@ -81,6 +84,7 @@ const useNoteStore = create((set) => ({
           note._id === res.data.note._id ? res.data.note : note,
         ),
       }));
+      toast.success("Note updated successfully");
     } catch (error) {
       if (error.response.status == 429) {
         set({ isRateLimited: true });
@@ -88,7 +92,7 @@ const useNoteStore = create((set) => ({
         toast.error("Failed to update note: " + error.response.data.message);
       }
     } finally {
-      set({ isLoading: false });
+      set({ isUploading: false });
     }
   },
 
