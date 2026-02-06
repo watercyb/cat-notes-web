@@ -4,7 +4,6 @@ import User from "../models/user_model.js";
 export const getNotes = async (req, res) => {
   try {
     const userId = req.user._id;
-
     if (!userId)
       return res
         .status(401)
@@ -12,27 +11,25 @@ export const getNotes = async (req, res) => {
 
     const user = await User.findById(userId).populate("notes");
 
-    res.status(201).json({
+    res.status(200).json({
       success: true,
       notes: user.notes,
     });
   } catch (error) {
     console.log("Error in getNotes: ", error.message);
-    res.status(400).json({ success: false, message: error.message });
+    res.status(500).json({ success: false, message: "Server internal error" });
   }
 };
 
 export const createNote = async (req, res) => {
   try {
     const userId = req.user._id;
-
     if (!userId)
       return res
         .status(401)
         .json({ success: false, message: "Unauthorized - User not found" });
 
     const { title, content } = req.body;
-
     if (!title || !content)
       return res
         .status(400)
@@ -62,14 +59,12 @@ export const createNote = async (req, res) => {
 export const deleteNode = async (req, res) => {
   try {
     const user = req.user;
-
     if (!user)
       return res
         .status(401)
         .json({ success: false, message: "Unauthorized - User not found" });
 
     const { noteId } = req.params;
-
     if (
       !noteId ||
       !user.notes.some((id) => id.toString() === noteId.toString())
@@ -91,21 +86,19 @@ export const deleteNode = async (req, res) => {
     });
   } catch (error) {
     console.log("Error in deleteNode: ", error.message);
-    res.status(400).json({ success: false, message: error.message });
+    res.status(500).json({ success: false, message: "Server internal error" });
   }
 };
 
 export const updateNote = async (req, res) => {
   try {
     const user = req.user;
-
     if (!user)
       return res
         .status(401)
         .json({ success: false, message: "Unauthorized - User not found" });
 
     const { noteId, title, content } = req.body;
-
     if (
       !noteId ||
       !user.notes.some((id) => id.toString() === noteId.toString())
@@ -113,7 +106,6 @@ export const updateNote = async (req, res) => {
       return res
         .status(400)
         .json({ success: false, message: "Invalid note id" });
-
     if (!title || !content)
       return res
         .status(400)
@@ -135,6 +127,6 @@ export const updateNote = async (req, res) => {
     });
   } catch (error) {
     console.log("Error in deleteNode: ", error.message);
-    res.status(400).json({ success: false, message: error.message });
+    res.status(500).json({ success: false, message: "Server internal error" });
   }
 };

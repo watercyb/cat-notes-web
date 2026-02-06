@@ -8,6 +8,7 @@ export const signup = async (req, res) => {
       return res
         .status(400)
         .json({ success: false, message: "All fields are required" });
+
     const { name, email, password } = req.body;
     if (await User.findOne({ email }))
       return res
@@ -38,13 +39,14 @@ export const signup = async (req, res) => {
     });
   } catch (error) {
     console.log("Error in signup: ", error.message);
-    res.status(400).json({ success: false, message: error.message });
+    res.status(500).json({ success: false, message: "Server internal error" });
   }
 };
 
 export const login = async (req, res) => {
   try {
     const { email, password } = req.body;
+    
     const user = await User.findOne({ email }).populate("notes");
     if (!user || !(await bcrypt.compare(password, user.password)))
       return res
@@ -63,7 +65,7 @@ export const login = async (req, res) => {
     });
   } catch (error) {
     console.log("Error in login: ", error.message);
-    res.status(400).json({ success: false, message: error.message });
+    res.status(500).json({ success: false, message: "Server internal error" });
   }
 };
 
@@ -73,7 +75,7 @@ export const logout = async (req, res) => {
     res.status(200).json({ success: true, message: "Logged out successfully" });
   } catch (error) {
     console.log("Error in logout: ", error.message);
-    res.status(400).json({ success: false, message: error.message });
+    res.status(500).json({ success: false, message: "Server internal error" });
   }
 };
 
@@ -82,13 +84,13 @@ export const checkAuth = async (req, res) => {
     const user = await User.findById(req.user._id).populate("notes");
     if (!user) {
       return res
-        .status(400)
-        .json({ success: false, message: "User not found" });
+        .status(401)
+        .json({ success: false, message: "Unauthorized - User not found" });
     }
 
     res.status(200).json({ success: true, user });
   } catch (error) {
     console.log("Error in checkAuth ", error);
-    res.status(400).json({ success: false, message: error.message });
+    res.status(500).json({ success: false, message: "Server internal error" });
   }
 };
