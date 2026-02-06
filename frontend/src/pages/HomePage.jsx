@@ -1,17 +1,12 @@
 import Navbar from "../components/Navbar";
 import RateLimitedUI from "../components/RateLimitedUI";
-import { useEffect } from "react";
 import NoteCard from "../components/NoteCard";
 import NotesNotFound from "../components/NotesNotFound";
 import useNoteStore from "../stores/useNoteStore";
-import LoadingSpinner from "../components/LoadingSpinner";
 
 const HomePage = () => {
-  const { notes, isLoading, isRateLimited, getNotes } = useNoteStore();
+  const { notes, isLoading, isRateLimited } = useNoteStore();
 
-  useEffect(() => {
-    getNotes();
-  }, [getNotes]);
 
   return (
     <div className="min-h-screen min-w-md">

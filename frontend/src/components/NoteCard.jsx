@@ -1,13 +1,10 @@
 import { PenSquareIcon, Trash2Icon } from "lucide-react";
 import { Link } from "react-router";
-import toast from "react-hot-toast";
 import { formatDate } from "../utils/formatDate";
+import useNoteStore from "../stores/useNoteStore";
 
-const NoteCard = ({ note, setNotes }) => {
-  const handleDelete = async (e, id) => {
-    e.preventDefault(); // get rid of the navigation behaviour
-
-  };
+const NoteCard = ({ note }) => {
+  const { deleteNote } = useNoteStore();
 
   return (
     <Link
@@ -26,7 +23,16 @@ const NoteCard = ({ note, setNotes }) => {
             <PenSquareIcon className="size-4" />
             <button
               className="btn btn-ghost btn-xs text-error"
-              onClick={(e) => handleDelete(e, note._id)}
+              onClick={(e) => {
+                e.preventDefault();
+
+                if (
+                  !window.confirm("Are you sure you want to delete this note?")
+                )
+                  return;
+
+                deleteNote(note._id);
+              }}
             >
               <Trash2Icon className="size-4" />
             </button>

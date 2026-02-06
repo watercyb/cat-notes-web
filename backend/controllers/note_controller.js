@@ -33,6 +33,11 @@ export const createNote = async (req, res) => {
 
     const { title, content } = req.body;
 
+    if (!title || !content)
+      return res
+        .status(400)
+        .json({ success: false, message: "All fields are required" });
+
     const note = await Note.create({
       title,
       content,
@@ -50,7 +55,7 @@ export const createNote = async (req, res) => {
     });
   } catch (error) {
     console.log("Error in createNote: ", error.message);
-    res.status(400).json({ success: false, message: error.message });
+    res.status(500).json({ success: false, message: "Server internal error" });
   }
 };
 
@@ -122,8 +127,7 @@ export const updateNote = async (req, res) => {
       },
     );
 
-    if (!note)
-      return res.status(404).json({ message: "Note not found" });
+    if (!note) return res.status(404).json({ message: "Note not found" });
 
     res.status(200).json({
       success: true,

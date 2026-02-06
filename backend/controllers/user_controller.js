@@ -45,7 +45,7 @@ export const signup = async (req, res) => {
 export const login = async (req, res) => {
   try {
     const { email, password } = req.body;
-    const user = await User.findOne({ email });
+    const user = await User.findOne({ email }).populate("notes");
     if (!user || !(await bcrypt.compare(password, user.password)))
       return res
         .status(400)
@@ -79,7 +79,7 @@ export const logout = async (req, res) => {
 
 export const checkAuth = async (req, res) => {
   try {
-    const user = req.user;
+    const user = await User.findById(req.user._id).populate("notes");
     if (!user) {
       return res
         .status(400)

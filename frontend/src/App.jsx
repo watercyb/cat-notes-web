@@ -11,6 +11,7 @@ import RateLimitedUI from "./components/RateLimitedUI";
 
 const App = () => {
   const { user, isCheckingAuth, isRateLimited, checkAuth } = useUserStore();
+
   useEffect(() => {
     checkAuth();
   }, [checkAuth]);
