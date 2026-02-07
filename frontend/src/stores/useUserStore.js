@@ -8,6 +8,7 @@ const useUserStore = create((set) => ({
   isCheckingAuth: true,
   error: null,
   isRateLimited: false,
+  isForgotPassword: false,
 
   login: async (email, password) => {
     try {
@@ -54,7 +55,7 @@ const useUserStore = create((set) => ({
 
   verifyEmail: async (code) => {
     try {
-      set({ isLoading: true, error: null ,isRateLimited: false });
+      set({ isLoading: true, error: null, isRateLimited: false });
       const res = await axiosInstance.post("/auth/verify-email", { code });
 
       set({ user: res.data.user });
@@ -74,19 +75,17 @@ const useUserStore = create((set) => ({
 
   checkAuth: async () => {
     try {
-      set({ isCheckingAuth: true, error: null ,isRateLimited: false  });
+      set({ isCheckingAuth: true, error: null, isRateLimited: false });
       const res = await axiosInstance.get("/auth/check-auth");
 
       set({ user: res.data.user });
       useNoteStore.getState().setNotes(res.data.user.notes);
     } catch (error) {
-      console.log(error);
-      console.log();
       set({ user: null });
       if (error.response.status == 429) {
         set({ isRateLimited: true });
         set({ error: "Too many requests, please slow down" });
-      } else {
+      } else if (error.response.status != 401) {
         set({ error: error.response.data.message || "Error check auth" });
       }
     } finally {
@@ -96,7 +95,7 @@ const useUserStore = create((set) => ({
 
   logout: async () => {
     try {
-      set({ isLoading: true, error: null ,isRateLimited: false  });
+      set({ isLoading: true, error: null, isRateLimited: false });
       await axiosInstance.post("/auth/logout");
 
       set({ user: null });
@@ -115,8 +114,9 @@ const useUserStore = create((set) => ({
 
   forgotPassword: async (email) => {
     try {
-      set({ isLoading: true, error: null ,isRateLimited: false  });
+      set({ isLoading: true, error: null, isRateLimited: false });
       await axiosInstance.post("/auth/forgot-password", { email });
+      return true;
     } catch (error) {
       if (error.response.status == 429) {
         set({ isRateLimited: true });
@@ -124,6 +124,7 @@ const useUserStore = create((set) => ({
       } else {
         set({ error: error.response.data.message || "Error forgot password" });
       }
+      return false;
     } finally {
       set({ isLoading: false });
     }
@@ -131,7 +132,7 @@ const useUserStore = create((set) => ({
 
   resetPassword: async (token, password) => {
     try {
-      set({ isLoading: true, error: null ,isRateLimited: false  });
+      set({ isLoading: true, error: null, isRateLimited: false });
       await axiosInstance.post(`/auth/reset-password/${token}`, { password });
       return true;
     } catch (error) {
@@ -145,6 +146,28 @@ const useUserStore = create((set) => ({
     } finally {
       set({ isLoading: false });
     }
+  },
+
+  resendEmail: async () => {
+    try {
+      set({ isLoading: true, error: null, isRateLimited: false });
+      await axiosInstance.post("/auth/resend-email");
+      return true;
+    } catch (error) {
+      if (error.response.status == 429) {
+        set({ isRateLimited: true });
+        set({ error: "Too many requests, please slow down" });
+      } else {
+        set({ error: error.response.data.message || "Error reset password" });
+      }
+      return false;
+    } finally {
+      set({ isLoading: false });
+    }
+  },
+
+  clearRateLimit: () => {
+    set({ isRateLimited: false });
   },
 }));
 

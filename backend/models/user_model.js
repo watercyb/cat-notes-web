@@ -15,6 +15,18 @@ const userSchema = new mongoose.Schema(
       required: true,
     },
     notes: [{ type: mongoose.Schema.Types.ObjectId, ref: "Note" }],
+    lastLogin: {
+      type: Date,
+      default: Date.now,
+    },
+    isVerified: {
+      type: Boolean,
+      default: false,
+    },
+    resetPasswordToken: String,
+    resetPasswordExpiresAt: Date,
+    verificationToken: String,
+    verificationTokenExpiresAt: Date,
   },
   { timestamps: true },
 );

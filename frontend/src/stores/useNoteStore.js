@@ -37,12 +37,10 @@ const useNoteStore = create((set) => ({
     } catch (error) {
       if (error.response.status == 429) {
         set({ isRateLimited: true });
-        toast.error("Slow down! You're creating notes too fast", {
-          duration: 4000,
-          icon: "💀",
-        });
       } else {
-        toast.error("Failed to create note: " + error.response.data.message);
+        toast.error("Failed to create note: " + error.response.data.message, {
+          id: "create",
+        });
       }
       return false;
     } finally {
@@ -98,6 +96,10 @@ const useNoteStore = create((set) => ({
 
   setNotes: async (notes) => {
     set({ isRateLimited: false, notes });
+  },
+
+  clearRateLimit: () => {
+    set({ isRateLimited: false });
   },
 }));
 

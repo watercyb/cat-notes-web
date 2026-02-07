@@ -14,13 +14,13 @@ const CreatePage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (await createNode(title, content)) {
-      toast.success("Note created successfully!");
+      toast.success("Note created successfully!", { id: "create" });
       navigate("/");
     }
   };
 
   return (
-    <div >
+    <div>
       <div className="container mx-auto min-w-sm px-4 py-8">
         <div className="max-w-2xl mx-auto">
           <Link to={"/"} className="btn btn-ghost mb-6">
