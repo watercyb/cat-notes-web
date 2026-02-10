@@ -12,11 +12,18 @@ import EmailVerificationPage from "./pages/EmailVerificationPage";
 import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 import ResetPasswordPage from "./pages/ResetPasswordPage";
 import RateLimitTopBar from "./components/RateLimitTopBar";
+import { AuthenticateWithRedirectCallback } from "@clerk/clerk-react";
+import AuthCallbackPage from "./pages/AuthCallbackPage";
+import { useAuth } from "@clerk/clerk-react";
+import axiosInstance from "./utils/axios";
+import { useState } from "react";
 
 const App = () => {
   const user = useUserStore((s) => s.user);
   const isCheckingAuth = useUserStore((s) => s.isCheckingAuth);
   const checkAuth = useUserStore((s) => s.checkAuth);
+  const { getToken } = useAuth();
+  const [isCleckloading, setIsCleckloading] = useState(true);
 
   const CheckUser = ({ children }) => {
     if (!user) return <Navigate to="/login" replace />;
@@ -32,10 +39,36 @@ const App = () => {
   };
 
   useEffect(() => {
-    checkAuth();
-  }, [checkAuth]);
+    const initAuth = async () => {
+      let interceptorId;
+      try {
+        const token = await getToken();
+        if (token) {
+          interceptorId = axiosInstance.interceptors.request.use(
+            async (config) => {
+              const token = await getToken();
+              config.headers["Authorization"] = `Bearer ${token}`;
+              return config;
+            },
+          );
+        }
+        checkAuth();
+      } catch (error) {
+        console.log("Error in auth provider", error);
+      } finally {
+        setIsCleckloading(false);
+      }
 
-  if (isCheckingAuth) return <LoadingSpinner />;
+      return () => {
+        if (interceptorId)
+          axiosInstance.interceptors.request.eject(interceptorId);
+      };
+    };
+
+    initAuth();
+  }, [checkAuth, getToken]);
+
+  if (isCheckingAuth || isCleckloading) return <LoadingSpinner />;
 
   return (
     <div
@@ -44,7 +77,26 @@ const App = () => {
     >
       <>
         <RateLimitTopBar />
+
         <Routes>
+          <Route
+            path="/sso_callback"
+            element={
+              <BlockUser>
+                <AuthenticateWithRedirectCallback
+                  signUpForceRedirectUrl={"/auth_callback"}
+                />
+              </BlockUser>
+            }
+          />
+          <Route
+            path="/auth_callback"
+            element={
+              <BlockUser>
+                <AuthCallbackPage />
+              </BlockUser>
+            }
+          />
           <Route
             path="/"
             element={

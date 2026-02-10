@@ -64,6 +64,13 @@ export const login = async (req, res) => {
     const { email, password } = req.body;
 
     const user = await User.findOne({ email }).populate("notes");
+    if (user?.password === "clerkUser")
+      return res
+        .status(400)
+        .json({
+          success: false,
+          message: "Password login isn't enabled for this account",
+        });
     if (!user || !(await bcrypt.compare(password, user.password)))
       return res
         .status(400)

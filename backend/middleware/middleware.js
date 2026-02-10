@@ -1,6 +1,7 @@
 import { checkLimit } from "../db/redis.js";
 import User from "../models/user_model.js";
 import jwt from "jsonwebtoken";
+import { clerkClient } from "@clerk/express";
 
 export const ratecheck = async (req, res, next) => {
   try {
@@ -20,37 +21,57 @@ export const ratecheck = async (req, res, next) => {
 
 export const verifyToken = async (req, res, next) => {
   try {
-    let token;
-    if (req.headers["x-client-type"] == "android-app") {
-      token = req.headers["authorization"].split(" ")[1];
+    if (req.auth().userId) {
+      const userId = req.auth().userId;
+      let user = await User.findOne({ email: userId });
+      if (!user) {
+        const clerkUser = await clerkClient.users.getUser(userId);
+        user = await User.create({
+          email: clerkUser.id,
+          name: `${clerkUser.firstName} ${clerkUser.lastName}`,
+          password: "clerkUser",
+          isVerified: true,
+        });
+      }
+
+      req.user = user;
+      next();
     } else {
-      token = req.cookies.token;
+      let token;
+      if (req.headers["x-client-type"] == "android-app") {
+        token = req.headers["authorization"].split(" ")[1];
+      } else {
+        token = req.cookies.token;
+      }
+
+      if (!token)
+        return res
+          .status(401)
+          .json({
+            success: false,
+            message: "Unauthorized - no token provided",
+          });
+
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+      if (!decoded)
+        return res
+          .status(401)
+          .json({ success: false, message: "Unauthorized - invalid token" });
+
+      const user = await User.findById(decoded.userId).select("-password");
+
+      if (!user)
+        return res
+          .status(401)
+          .json({ success: false, message: "Unauthorized - User not found" });
+
+      req.user = user;
+
+      next();
     }
-
-    if (!token)
-      return res
-        .status(401)
-        .json({ success: false, message: "Unauthorized - no token provided" });
-
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
-    if (!decoded)
-      return res
-        .status(401)
-        .json({ success: false, message: "Unauthorized - invalid token" });
-
-    const user = await User.findById(decoded.userId).select("-password");
-
-    if (!user)
-      return res
-        .status(401)
-        .json({ success: false, message: "Unauthorized - User not found" });
-
-    req.user = user;
-
-    next();
   } catch (error) {
     console.log("Error in verifyToken ", error);
-    return res.status(500).json({ success: false, message: "Server error" });
+    res.status(500).json({ success: false, message: "Server internal error" });
   }
 };

@@ -4,6 +4,8 @@ import { Link } from "react-router-dom";
 import { motion as Motion } from "framer-motion";
 import Input from "../components/Input";
 import useUserStore from "../stores/useUserStore.js";
+import { FcGoogle } from "react-icons/fc";
+import { useSignIn } from "@clerk/clerk-react";
 
 const LoginPage = () => {
   const [email, setEmail] = useState("");
@@ -14,6 +16,15 @@ const LoginPage = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     await login(email, password);
+  };
+  const { signIn, isLoaded } = useSignIn();
+
+  const handleGoogleLogin = async () => {
+    signIn?.authenticateWithRedirect({
+      strategy: "oauth_google",
+      redirectUrl: "/sso_callback",
+      redirectUrlComplete: "/auth_callback",
+    });
   };
 
   return (
@@ -58,7 +69,7 @@ const LoginPage = () => {
           <Motion.button
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
-            className="w-full py-3 px-4 bg-linear-to-r from-green-500 to-emerald-600 text-white font-bold rounded-lg shadow-lg hover:from-green-600 hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 focus:ring-offset-gray-900 transition duration-200"
+            className="w-full gap-3 py-3 px-4 bg-linear-to-r from-green-500 to-emerald-600 text-white font-bold rounded-lg shadow-lg hover:from-green-600 hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 focus:ring-offset-gray-900 transition duration-200"
             type="submit"
             disabled={isLoading}
           >
@@ -67,6 +78,26 @@ const LoginPage = () => {
             ) : (
               "Login"
             )}
+          </Motion.button>
+
+          <div className="flex items-center mt-6 mb-6">
+            <div className="grow h-px bg-gray-600" />
+            <span className="px-3 text-sm text-gray-400">OR</span>
+            <div className="grow h-px bg-gray-600" />
+          </div>
+
+          <Motion.button
+            type="button"
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={handleGoogleLogin}
+            disabled={isLoading || !isLoaded}
+            className="w-full mb-6 flex items-center justify-center gap-3 py-3 px-4 
+             bg-white text-gray-800 font-semibold rounded-lg shadow-md
+             hover:bg-gray-100 transition duration-200"
+          >
+            <FcGoogle className="w-5 h-5" />
+            Continue with Google
           </Motion.button>
         </form>
       </div>
