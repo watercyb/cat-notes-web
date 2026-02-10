@@ -4,7 +4,7 @@ import dotenv from "dotenv";
 import authRoutes from "./routes/auth_route.js";
 import cookieParser from "cookie-parser";
 import noteRoutes from "./routes/note_route.js";
-import { ratecheck } from "./middleware/middleware.js";
+import { rateCheck } from "./middleware/middleware.js";
 import { clerkMiddleware } from "@clerk/express";
 
 dotenv.config();
@@ -17,9 +17,10 @@ app.use(clerkMiddleware());
 
 app.use(express.json());
 app.use(cookieParser());
+app.use(rateCheck);
 
-app.use("/api/auth", ratecheck, authRoutes);
-app.use("/api/note", ratecheck, noteRoutes);
+app.use("/api/auth", authRoutes);
+app.use("/api/note", noteRoutes);
 
 app.listen(port, () => {
   console.log("Running on port: ", port);

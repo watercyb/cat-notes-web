@@ -4,8 +4,7 @@ import { Link } from "react-router-dom";
 import { motion as Motion } from "framer-motion";
 import Input from "../components/Input";
 import useUserStore from "../stores/useUserStore.js";
-import { FcGoogle } from "react-icons/fc";
-import { useSignIn } from "@clerk/clerk-react";
+import GoogleLogin from "../components/GoogleLogin.jsx";
 
 const LoginPage = () => {
   const [email, setEmail] = useState("");
@@ -16,15 +15,6 @@ const LoginPage = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     await login(email, password);
-  };
-  const { signIn, isLoaded } = useSignIn();
-
-  const handleGoogleLogin = async () => {
-    signIn?.authenticateWithRedirect({
-      strategy: "oauth_google",
-      redirectUrl: "/sso_callback",
-      redirectUrlComplete: "/auth_callback",
-    });
   };
 
   return (
@@ -86,19 +76,7 @@ const LoginPage = () => {
             <div className="grow h-px bg-gray-600" />
           </div>
 
-          <Motion.button
-            type="button"
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            onClick={handleGoogleLogin}
-            disabled={isLoading || !isLoaded}
-            className="w-full mb-6 flex items-center justify-center gap-3 py-3 px-4 
-             bg-white text-gray-800 font-semibold rounded-lg shadow-md
-             hover:bg-gray-100 transition duration-200"
-          >
-            <FcGoogle className="w-5 h-5" />
-            Continue with Google
-          </Motion.button>
+          <GoogleLogin />
         </form>
       </div>
       <div className="px-8 py-4 bg-gray-900 bg-opacity-50 flex justify-center">

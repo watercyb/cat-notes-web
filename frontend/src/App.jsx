@@ -17,6 +17,7 @@ import AuthCallbackPage from "./pages/AuthCallbackPage";
 import { useAuth } from "@clerk/clerk-react";
 import axiosInstance from "./utils/axios";
 import { useState } from "react";
+import ChangePassword from "./pages/ChangePassword";
 
 const App = () => {
   const user = useUserStore((s) => s.user);
@@ -81,22 +82,9 @@ const App = () => {
         <Routes>
           <Route
             path="/sso_callback"
-            element={
-              <BlockUser>
-                <AuthenticateWithRedirectCallback
-                  signUpForceRedirectUrl={"/auth_callback"}
-                />
-              </BlockUser>
-            }
+            element={<AuthenticateWithRedirectCallback />}
           />
-          <Route
-            path="/auth_callback"
-            element={
-              <BlockUser>
-                <AuthCallbackPage />
-              </BlockUser>
-            }
-          />
+          <Route path="/auth_callback" element={<AuthCallbackPage />} />
           <Route
             path="/"
             element={
@@ -135,6 +123,14 @@ const App = () => {
               <BlockUser>
                 <LoginPage />
               </BlockUser>
+            }
+          />
+          <Route
+            path="/change-password"
+            element={
+              <CheckUser>
+                <ChangePassword />
+              </CheckUser>
             }
           />
           <Route

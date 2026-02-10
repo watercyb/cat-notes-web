@@ -9,11 +9,20 @@ const redis = new Redis({
   token: process.env.UPSTASH_REDIS_REST_TOKEN,
 });
 
-const ratelimit = new Ratelimit({
+const rateLimit = new Ratelimit({
   redis: redis,
   limiter: Ratelimit.slidingWindow(10, "10 s"),
 });
 
+const rateLimitEmail = new Ratelimit({
+  redis: redis,
+  limiter: Ratelimit.slidingWindow(1, "60 s"),
+});
+
 export const checkLimit = async (identifier) => {
-  return await ratelimit.limit(identifier);
+  return await rateLimit.limit(identifier);
+};
+
+export const checkLimitEmail = async (identifier) => {
+  return await rateLimitEmail.limit(identifier);
 };

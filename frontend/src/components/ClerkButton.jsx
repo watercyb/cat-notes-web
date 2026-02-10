@@ -1,6 +1,6 @@
 import { SignedOut, UserButton, useSignIn } from "@clerk/clerk-react";
 
-const Clerk = () => {
+const ClerkButton = () => {
   const { isLoaded } = useSignIn();
 
   if (!isLoaded) return null;
@@ -13,4 +13,4 @@ const Clerk = () => {
   );
 };
 
-export default Clerk;
+export default ClerkButton;

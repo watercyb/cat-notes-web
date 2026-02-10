@@ -65,12 +65,10 @@ export const login = async (req, res) => {
 
     const user = await User.findOne({ email }).populate("notes");
     if (user?.password === "clerkUser")
-      return res
-        .status(400)
-        .json({
-          success: false,
-          message: "Password login isn't enabled for this account",
-        });
+      return res.status(400).json({
+        success: false,
+        message: "Password login isn't enabled for this account",
+      });
     if (!user || !(await bcrypt.compare(password, user.password)))
       return res
         .status(400)
@@ -262,6 +260,42 @@ export const resendEmailVerification = async (req, res) => {
     });
   } catch (error) {
     console.log("Error in resendEmailVerification: ", error.message);
+    res.status(500).json({ success: false, message: "Server internal error" });
+  }
+};
+
+export const changePassword = async (req, res) => {
+  try {
+    const { oldPassword, newPassword } = req.body;
+    if (!newPassword)
+      return res.status(400).json({
+        success: false,
+        message: "New password is needed",
+      });
+
+    const user = await User.findOne({ email: req.user?.email }).populate(
+      "notes",
+    );
+    if (user?.password === "clerkUser")
+      return res.status(400).json({
+        success: false,
+        message: "Password change isn't enabled for this account",
+      });
+    if (!user || !(await bcrypt.compare(oldPassword, user.password)))
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid credentials" });
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    user.password = hashedPassword;
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Password is changed",
+    });
+  } catch (error) {
+    console.log("Error in changePassword: ", error.message);
     res.status(500).json({ success: false, message: "Server internal error" });
   }
 };

@@ -1,11 +1,10 @@
 import { Link } from "react-router";
-import { LogOut, PlusIcon } from "lucide-react";
-import useUserStore from "../stores/useUserStore";
-import Clerk from "../utils/clerk";
+import { PlusIcon } from "lucide-react";
 import { useAuth } from "@clerk/clerk-react";
+import ClerkButton from "./ClerkButton";
+import UserButton from "./UserButton";
 
 const Navbar = () => {
-  const { logout } = useUserStore();
   const { isSignedIn } = useAuth();
 
   return (
@@ -20,14 +19,7 @@ const Navbar = () => {
               <PlusIcon className="size-5" />
               <span>New Note</span>
             </Link>
-            {!isSignedIn ? (
-              <LogOut
-                className="size-6 text-red-500 cursor-pointer"
-                onClick={() => logout()}
-              />
-            ) : (
-              <Clerk />
-            )}
+            {!isSignedIn ? <UserButton /> : <ClerkButton />}
           </div>
         </div>
       </div>

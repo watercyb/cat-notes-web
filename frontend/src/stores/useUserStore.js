@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import axiosInstance from "../utils/axios";
 import useNoteStore from "./useNoteStore";
+import toast from "react-hot-toast";
 
 const useUserStore = create((set) => ({
   user: null,
@@ -168,6 +169,32 @@ const useUserStore = create((set) => ({
 
   clearRateLimit: () => {
     set({ isRateLimited: false });
+  },
+
+  changePassword: async (oldPassword, newPassword, confirmPassword) => {
+    try {
+      set({ isLoading: true, error: null, isRateLimited: false });
+      if (newPassword !== confirmPassword) {
+        set({ error: "Passwords do not match" });
+        return false;
+      }
+      await axiosInstance.post("/auth/password", {
+        oldPassword,
+        newPassword,
+      });
+      toast.success("Password updated successfully");
+      return true;
+    } catch (error) {
+      if (error.response.status == 429) {
+        set({ isRateLimited: true });
+        set({ error: "Too many requests, please slow down" });
+      } else {
+        set({ error: error.response.data.message || "Error change password" });
+      }
+      return false;
+    } finally {
+      set({ isLoading: false });
+    }
   },
 }));
 
