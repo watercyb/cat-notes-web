@@ -1,4 +1,4 @@
-import { checkLimit, checkLimitEmail } from "../db/redis.js";
+import { checkLimit, checkLimitResetPassword, checkLimitSignup } from "../db/redis.js";
 import User from "../models/user_model.js";
 import jwt from "jsonwebtoken";
 import { clerkClient } from "@clerk/express";
@@ -19,11 +19,27 @@ export const rateCheck = async (req, res, next) => {
   }
 };
 
-export const rateCheckEmail = async (req, res, next) => {
+export const rateCheckSignup = async (req, res, next) => {
   try {
     const ip =
       req.headers["x-forwarded-for"]?.split(",")[0] || req.socket.remoteAddress;
-    const rate = await checkLimitEmail(ip);
+    const rate = await checkLimitSignup(ip);
+    if (rate.success) {
+      next();
+    } else {
+      res.status(429).json({ success: false, message: "Too many requests" });
+    }
+  } catch (error) {
+    console.log("Error in ratecheck: ", error);
+    res.status(500).json("Internal error");
+  }
+};
+
+export const rateCheckResetPassword = async (req, res, next) => {
+  try {
+    const ip =
+      req.headers["x-forwarded-for"]?.split(",")[0] || req.socket.remoteAddress;
+    const rate = await checkLimitResetPassword(ip);
     if (rate.success) {
       next();
     } else {

@@ -1,6 +1,6 @@
 import express from "express";
 import {
-    changePassword,
+  changePassword,
   checkAuth,
   forgotPassword,
   login,
@@ -10,11 +10,11 @@ import {
   signup,
   verifyEmail,
 } from "../controllers/user_controller.js";
-import { rateCheckEmail, verifyToken } from "../middleware/middleware.js";
+import { rateCheckResetPassword, rateCheckSignup, verifyToken } from "../middleware/middleware.js";
 
 const router = express.Router();
 
-router.post("/signup", rateCheckEmail, signup);
+router.post("/signup", rateCheckSignup, signup);
 router.post("/login", login);
 router.post("/logout", logout);
 
@@ -23,11 +23,11 @@ router.get("/check-auth", verifyToken, checkAuth);
 router.post("/verify-email", verifyToken, verifyEmail);
 router.post(
   "/resend-email",
-  rateCheckEmail,
+  rateCheckSignup,
   verifyToken,
   resendEmailVerification,
 );
-router.post("/forgot-password", rateCheckEmail, forgotPassword);
+router.post("/forgot-password", rateCheckResetPassword, forgotPassword);
 
 router.post("/reset-password/:token", resetPassword);
 

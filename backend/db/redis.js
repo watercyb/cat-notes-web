@@ -14,7 +14,12 @@ const rateLimit = new Ratelimit({
   limiter: Ratelimit.slidingWindow(10, "10 s"),
 });
 
-const rateLimitEmail = new Ratelimit({
+const rateLimitSignUp = new Ratelimit({
+  redis: redis,
+  limiter: Ratelimit.slidingWindow(1, "60 s"),
+});
+
+const rateLimitResetPassword  = new Ratelimit({
   redis: redis,
   limiter: Ratelimit.slidingWindow(1, "60 s"),
 });
@@ -23,6 +28,10 @@ export const checkLimit = async (identifier) => {
   return await rateLimit.limit(identifier);
 };
 
-export const checkLimitEmail = async (identifier) => {
-  return await rateLimitEmail.limit(identifier);
+export const checkLimitSignup = async (identifier) => {
+  return await rateLimitSignUp.limit(identifier);
+};
+
+export const checkLimitResetPassword = async (identifier) => {
+  return await rateLimitResetPassword.limit(identifier);
 };

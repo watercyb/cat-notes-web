@@ -8,7 +8,7 @@ const RESEND_COOLDOWN = 60;
 
 const EmailVerificationPage = () => {
   const [code, setCode] = useState(["", "", "", "", "", ""]);
-  const [resendCooldown, setResendCooldown] = useState(0);
+  const [resendCooldown, setResendCooldown] = useState(60);
   const inputRefs = useRef([]);
   const navigate = useNavigate();
 

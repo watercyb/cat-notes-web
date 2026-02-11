@@ -23,7 +23,7 @@ const UserButton = () => {
   const initial = user.name?.charAt(0).toUpperCase() ?? "?";
   const bgColor = getColorFromName(user.name);
 
-  if (!user.email.contains("@")) return null;
+  if (!user.email?.includes("@")) return null;
 
   return (
     <div ref={ref} className="relative pointer-coarse:">
