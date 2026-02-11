@@ -12,6 +12,9 @@ const GoogleLogin = () => {
       strategy: "oauth_google",
       redirectUrl: "/sso_callback",
       redirectUrlComplete: "/auth_callback",
+      strategyOptions: {
+        prompt: "select_account",
+      },
     });
   };
 
