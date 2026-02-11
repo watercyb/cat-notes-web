@@ -19,10 +19,9 @@ app.use(clerkMiddleware());
 
 app.use(express.json());
 app.use(cookieParser());
-app.use(rateCheck);
 
-app.use("/api/auth", authRoutes);
-app.use("/api/note", noteRoutes);
+app.use("/api/auth", rateCheck, authRoutes);
+app.use("/api/note", rateCheck, noteRoutes);
 
 if (process.env.NODE_ENV !== "development") {
   app.use(express.static(path.join(__dirname, "./frontend/dist")));
