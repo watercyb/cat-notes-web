@@ -30,9 +30,6 @@ export const createNote = async (req, res) => {
         .json({ success: false, message: "Unauthorized - User not found" });
 
     const { title, content, version } = req.body;
-    console.log(title);
-    console.log(content);
-    console.log(version);
     if (title === null) title = "";
     if (!content || version === undefined)
       return res

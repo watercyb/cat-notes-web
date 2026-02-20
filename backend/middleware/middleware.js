@@ -86,7 +86,14 @@ export const verifyToken = async (req, res, next) => {
           message: "Unauthorized - no token provided",
         });
 
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      let decoded;
+      try {
+        decoded = jwt.verify(token, process.env.JWT_SECRET);
+      } catch (error) {
+        return res
+          .status(401)
+          .json({ success: false, message: "Unauthorized - invalid token" });
+      }
 
       if (!decoded)
         return res
