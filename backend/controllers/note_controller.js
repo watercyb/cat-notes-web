@@ -29,8 +29,12 @@ export const createNote = async (req, res) => {
         .status(401)
         .json({ success: false, message: "Unauthorized - User not found" });
 
-    const { title, content } = req.body;
-    if (!title || !content)
+    const { title, content, version } = req.body;
+    console.log(title);
+    console.log(content);
+    console.log(version);
+    if (title === null) title = "";
+    if (!content || version === undefined)
       return res
         .status(400)
         .json({ success: false, message: "All fields are required" });
@@ -38,6 +42,7 @@ export const createNote = async (req, res) => {
     const note = await Note.create({
       title,
       content,
+      version,
     });
 
     await User.findByIdAndUpdate(
@@ -98,7 +103,7 @@ export const updateNote = async (req, res) => {
         .status(401)
         .json({ success: false, message: "Unauthorized - User not found" });
 
-    const { noteId, title, content } = req.body;
+    const { noteId, title, content, version } = req.body;
     if (
       !noteId ||
       !user.notes.some((id) => id.toString() === noteId.toString())
@@ -106,14 +111,15 @@ export const updateNote = async (req, res) => {
       return res
         .status(400)
         .json({ success: false, message: "Invalid note id" });
-    if (!title || !content)
+    if (title === null) title = "";
+    if (!content || version === undefined)
       return res
         .status(400)
         .json({ success: false, message: "Please input update field" });
 
     const note = await Note.findByIdAndUpdate(
       noteId,
-      { title, content },
+      { title, content, version },
       {
         new: true,
       },

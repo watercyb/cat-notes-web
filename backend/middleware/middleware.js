@@ -1,4 +1,8 @@
-import { checkLimit, checkLimitResetPassword, checkLimitSignup } from "../db/redis.js";
+import {
+  checkLimit,
+  checkLimitResetPassword,
+  checkLimitSignup,
+} from "../db/redis.js";
 import User from "../models/user_model.js";
 import jwt from "jsonwebtoken";
 import { clerkClient } from "@clerk/express";
@@ -77,12 +81,10 @@ export const verifyToken = async (req, res, next) => {
       }
 
       if (!token)
-        return res
-          .status(401)
-          .json({
-            success: false,
-            message: "Unauthorized - no token provided",
-          });
+        return res.status(401).json({
+          success: false,
+          message: "Unauthorized - no token provided",
+        });
 
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
 

@@ -136,7 +136,7 @@ const App = () => {
           <Route
             path="/verify-email"
             element={
-              user?.isVerified ? (
+              !user || user?.isVerified ? (
                 <Navigate to="/" replace />
               ) : (
                 <EmailVerificationPage />

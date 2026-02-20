@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { motion as Motion } from "framer-motion";
 import toast from "react-hot-toast";
 import useUserStore from "../stores/useUserStore";
@@ -12,7 +12,7 @@ const EmailVerificationPage = () => {
   const inputRefs = useRef([]);
   const navigate = useNavigate();
 
-  const { error, isLoading, verifyEmail, resendEmail } = useUserStore();
+  const { error, isLoading, verifyEmail, resendEmail, logout } = useUserStore();
 
   const handleChange = (index, value) => {
     const newCode = [...code];
@@ -25,9 +25,7 @@ const EmailVerificationPage = () => {
       }
       setCode(newCode);
 
-      const lastFilledIndex = newCode.findLastIndex(
-        (digit) => digit !== ""
-      );
+      const lastFilledIndex = newCode.findLastIndex((digit) => digit !== "");
       const focusIndex = lastFilledIndex < 5 ? lastFilledIndex + 1 : 5;
       inputRefs.current[focusIndex]?.focus();
     } else {
@@ -90,7 +88,7 @@ const EmailVerificationPage = () => {
         initial={{ opacity: 0, y: -50 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="bg-gray-800 bg-opacity-50 backdrop-filter backdrop-blur-xl rounded-2xl shadow-2xl p-8 w-full max-w-md"
+        className="bg-gray-800 bg-opacity-50 backdrop-filter backdrop-blur-xl rounded-2xl shadow-2xl pt-8 pl-8 pr-8 pb-3 w-full max-w-md"
       >
         <h2 className="text-3xl font-bold mb-6 text-center bg-linear-to-r from-green-400 to-emerald-500 text-transparent bg-clip-text">
           Verify Your Email
@@ -116,9 +114,7 @@ const EmailVerificationPage = () => {
             ))}
           </div>
 
-          {error && (
-            <p className="text-red-500 font-semibold mt-2">{error}</p>
-          )}
+          {error && <p className="text-red-500 font-semibold mt-2">{error}</p>}
 
           <Motion.button
             whileHover={{ scale: 1.05 }}
@@ -143,6 +139,17 @@ const EmailVerificationPage = () => {
               : "Resend verification code"}
           </button>
         </div>
+
+        {/* Logout / Use other account */}
+        <Motion.button
+          whileHover={{ x: -2 }}
+          whileTap={{ scale: 0.95 }}
+          type="button"
+          onClick={() => logout()}
+          className="text-sm text-green-400 hover:text-green-300 mb-0 font-medium flex items-center gap-1 pt-5"
+        >
+          ← Use other account
+        </Motion.button>
       </Motion.div>
     </div>
   );

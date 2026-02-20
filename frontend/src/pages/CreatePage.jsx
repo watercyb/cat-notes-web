@@ -13,7 +13,7 @@ const CreatePage = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (await createNode(title, content)) {
+    if (await createNode(title, content, 0)) {
       toast.success("Note created successfully!", { id: "create" });
       navigate("/");
     }

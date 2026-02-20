@@ -10,6 +10,7 @@ const NoteDetailPage = () => {
 
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
+  const [version, setVersion] = useState(0);
 
   const navigate = useNavigate();
 
@@ -25,6 +26,7 @@ const NoteDetailPage = () => {
     } else {
       setTitle(note.title);
       setContent(note.content);
+      setVersion(note.version + 1);
     }
   }, [id, navigate, notes]);
 
@@ -34,7 +36,7 @@ const NoteDetailPage = () => {
   };
 
   const handleSave = async () => {
-    updateNote(id, title, content);
+    updateNote(id, title, content, version);
   };
 
   return (
