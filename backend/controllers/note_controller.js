@@ -21,6 +21,27 @@ export const getNotes = async (req, res) => {
   }
 };
 
+export const getNotesIdAndVersion = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    if (!userId)
+      return res
+        .status(401)
+        .json({ success: false, message: "Unauthorized - User not found" });
+
+    const user = await User.findById(userId).populate("notes");
+    const list = user.notes.map((note) => [note._id, note.version]);
+
+    res.status(200).json({
+      success: true,
+      notes: list,
+    });
+  } catch (error) {
+    console.log("Error in getNotesIdAndVersion: ", error.message);
+    res.status(500).json({ success: false, message: "Server internal error" });
+  }
+};
+
 export const createNote = async (req, res) => {
   try {
     const userId = req.user._id;
@@ -114,20 +135,40 @@ export const updateNote = async (req, res) => {
         .status(400)
         .json({ success: false, message: "Please input update field" });
 
-    const note = await Note.findByIdAndUpdate(
-      noteId,
-      { title, content, version },
-      {
-        new: true,
-      },
-    );
+    let note = await Note.findById(noteId);
 
     if (!note) return res.status(404).json({ message: "Note not found" });
 
-    res.status(200).json({
-      success: true,
-      note,
-    });
+    if (note.version < version) {
+      note.title = title;
+      note.content = content;
+      note.version = version;
+
+      await note.save();
+
+      res.status(200).json({
+        success: true,
+        note,
+      });
+    } else {
+      const newNote = await Note.create({
+        title,
+        content,
+        version,
+      });
+
+      await User.findByIdAndUpdate(
+        user._id,
+        { $push: { notes: newNote._id } },
+        { new: true },
+      );
+
+      res.status(200).json({
+        success: false,
+        noteFromServer: note,
+        newNote,
+      });
+    }
   } catch (error) {
     console.log("Error in deleteNode: ", error.message);
     res.status(500).json({ success: false, message: "Server internal error" });

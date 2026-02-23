@@ -36,7 +36,7 @@ const NoteDetailPage = () => {
   };
 
   const handleSave = async () => {
-    updateNote(id, title, content, version);
+    if (await updateNote(id, title, content, version)) navigate("/");
   };
 
   return (

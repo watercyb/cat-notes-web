@@ -82,12 +82,28 @@ const useNoteStore = create((set) => ({
         version,
       });
 
-      set((state) => ({
-        notes: state.notes.map((note) =>
-          note._id === res.data.note._id ? res.data.note : note,
-        ),
-      }));
-      toast.success("Note updated successfully");
+      if (!res.data.success) {
+        set((state) => ({
+          notes: [
+            ...state.notes.map((note) =>
+              note._id === res.data.noteFromServer._id
+                ? res.data.noteFromServer
+                : note,
+            ),
+            res.data.newNote,
+          ],
+        }));
+        toast.success("Duplicate note found, two versions are all kept.");
+        return true;
+      } else {
+        set((state) => ({
+          notes: state.notes.map((note) =>
+            note._id === res.data.note._id ? res.data.note : note,
+          ),
+        }));
+        toast.success("Note updated successfully");
+        return false;
+      }
     } catch (error) {
       if (error.response.status == 429) {
         set({ isRateLimited: true });

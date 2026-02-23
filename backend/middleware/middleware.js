@@ -19,7 +19,7 @@ export const rateCheck = async (req, res, next) => {
     }
   } catch (error) {
     console.log("Error in ratecheck: ", error);
-    res.status(500).json("Internal error");
+    res.status(500).json({ success: false, message: "Server internal error" });
   }
 };
 
@@ -35,7 +35,7 @@ export const rateCheckSignup = async (req, res, next) => {
     }
   } catch (error) {
     console.log("Error in ratecheck: ", error);
-    res.status(500).json("Internal error");
+    res.status(500).json({ success: false, message: "Server internal error" });
   }
 };
 
@@ -51,7 +51,7 @@ export const rateCheckResetPassword = async (req, res, next) => {
     }
   } catch (error) {
     console.log("Error in ratecheck: ", error);
-    res.status(500).json("Internal error");
+    res.status(500).json({ success: false, message: "Server internal error" });
   }
 };
 
