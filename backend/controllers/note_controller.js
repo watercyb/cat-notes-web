@@ -130,7 +130,8 @@ export const updateNote = async (req, res) => {
         .status(400)
         .json({ success: false, message: "Invalid note id" });
     if (title === null) title = "";
-    if (!content || version === undefined)
+    if (content === null) content = "";
+    if (version === undefined)
       return res
         .status(400)
         .json({ success: false, message: "Please input update field" });
@@ -146,6 +147,15 @@ export const updateNote = async (req, res) => {
 
       await note.save();
 
+      res.status(200).json({
+        success: true,
+        note,
+      });
+    } else if (
+      note.version == version &&
+      note.title == title &&
+      note.content == content
+    ) {
       res.status(200).json({
         success: true,
         note,

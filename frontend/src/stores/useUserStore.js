@@ -81,8 +81,6 @@ const useUserStore = create((set) => ({
 
       set({ user: res.data.user });
       useNoteStore.getState().setNotes(res.data.user.notes);
-
-      console.log((await axiosInstance.get("/note/getNotesIdAndVersion")).data);
     } catch (error) {
       set({ user: null });
       if (error.response.status == 429) {
