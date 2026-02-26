@@ -30,7 +30,11 @@ export const getNotesIdAndVersion = async (req, res) => {
         .json({ success: false, message: "Unauthorized - User not found" });
 
     const user = await User.findById(userId).populate("notes");
-    const list = user.notes.map((note) => [note._id, note.version]);
+
+    const list = user.notes.map((note) => ({
+      _id: note._id,
+      version: note.version,
+    }));
 
     res.status(200).json({
       success: true,
@@ -52,7 +56,8 @@ export const createNote = async (req, res) => {
 
     const { title, content, version } = req.body;
     if (title === null) title = "";
-    if (!content || version === undefined)
+    if (content === null) content = "";
+    if (version === undefined)
       return res
         .status(400)
         .json({ success: false, message: "All fields are required" });
@@ -181,6 +186,35 @@ export const updateNote = async (req, res) => {
     }
   } catch (error) {
     console.log("Error in deleteNode: ", error.message);
+    res.status(500).json({ success: false, message: "Server internal error" });
+  }
+};
+
+export const getNode = async (req, res) => {
+  try {
+    const user = req.user;
+    if (!user)
+      return res
+        .status(401)
+        .json({ success: false, message: "Unauthorized - User not found" });
+
+    const { noteId } = req.params;
+    if (
+      !noteId ||
+      !user.notes.some((id) => id.toString() === noteId.toString())
+    )
+      return res
+        .status(400)
+        .json({ success: false, message: "Invalid note id" });
+
+    const note = await Note.findById(noteId);
+
+    res.status(200).json({
+      success: true,
+      note
+    });
+  } catch (error) {
+    console.log("Error in getNode: ", error.message);
     res.status(500).json({ success: false, message: "Server internal error" });
   }
 };

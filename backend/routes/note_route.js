@@ -2,6 +2,7 @@ import express from "express";
 import {
   createNote,
   deleteNode,
+  getNode,
   getNotes,
   getNotesIdAndVersion,
   updateNote,
@@ -15,5 +16,6 @@ router.get("/getNotesIdAndVersion", verifyToken, getNotesIdAndVersion);
 router.post("/create", verifyToken, createNote);
 router.delete("/:noteId", verifyToken, deleteNode);
 router.post("/update", verifyToken, updateNote);
+router.get("/:noteId", verifyToken, getNode);
 
 export default router;
