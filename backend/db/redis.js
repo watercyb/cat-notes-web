@@ -11,7 +11,7 @@ const redis = new Redis({
 
 const rateLimit = new Ratelimit({
   redis: redis,
-  limiter: Ratelimit.slidingWindow(10, "10 s"),
+  limiter: Ratelimit.slidingWindow(60, "60 s"),
 });
 
 const rateLimitSignUp = new Ratelimit({

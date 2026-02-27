@@ -13,17 +13,17 @@ export const signup = async (req, res) => {
   try {
     if (!req.body)
       return res
-        .status(400)
+        .status(422)
         .json({ success: false, message: "All fields are required" });
 
     const { name, email, password } = req.body;
     if (await User.findOne({ email }))
       return res
-        .status(400)
+        .status(409)
         .json({ success: false, message: "User already exists" });
     if (!name || !email || !password)
       return res
-        .status(400)
+        .status(422)
         .json({ success: false, message: "All fields are required" });
 
     const hashedPassword = await bcrypt.hash(password, 10);
