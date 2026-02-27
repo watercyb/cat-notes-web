@@ -55,7 +55,7 @@ const App = () => {
         }
         checkAuth();
       } catch (error) {
-        console.log("Error in auth provider", error);
+        console.log("Error in auth provider: ", error);
       } finally {
         setIsCleckloading(false);
       }

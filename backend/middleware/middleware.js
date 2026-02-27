@@ -28,7 +28,6 @@ export const rateCheckSignup = async (req, res, next) => {
     const ip =
       req.headers["x-forwarded-for"]?.split(",")[0] || req.socket.remoteAddress;
     const rate = await checkLimitSignup(ip);
-    console.log(rate);
     if (rate.success) {
       next();
     } else {

@@ -11,7 +11,7 @@ const redis = new Redis({
 
 const rateLimit = new Ratelimit({
   redis: redis,
-  limiter: Ratelimit.slidingWindow(60, "60 s"),
+  limiter: Ratelimit.slidingWindow(60, "30 s"),
 });
 
 const rateLimitSignUp = new Ratelimit({
@@ -21,7 +21,7 @@ const rateLimitSignUp = new Ratelimit({
 
 const rateLimitResetPassword  = new Ratelimit({
   redis: redis,
-  limiter: Ratelimit.slidingWindow(1, "60 s"),
+  limiter: Ratelimit.slidingWindow(1, "30 s"),
 });
 
 export const checkLimit = async (identifier) => {
