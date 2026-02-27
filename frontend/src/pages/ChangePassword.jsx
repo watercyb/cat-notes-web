@@ -28,7 +28,7 @@ const ChangePassword = () => {
     >
       <div className="p-8">
         <h2 className="text-3xl font-bold mb-6 text-center bg-linear-to-r from-green-400 to-emerald-500 text-transparent bg-clip-text">
-          Create Account
+          Change Password
         </h2>
 
         <form onSubmit={handleChangePassword}>

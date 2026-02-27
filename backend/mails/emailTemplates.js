@@ -47,3 +47,15 @@ export const getWelcomeEmailTempale = (appUrl) => {
   html = html.replace("{{appUrl}}", appUrl);
   return html;
 };
+
+export const getPasswordchangedEmailTempale = (appUrl) => {
+ const templatePath = path.join(
+    process.cwd(),
+    "backend",
+    "emails",
+    "password_changed.html",
+  );
+  let html = fs.readFileSync(templatePath, "utf8");
+  return html;
+};
+

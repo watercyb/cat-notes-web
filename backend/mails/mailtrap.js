@@ -1,5 +1,6 @@
 import { MailtrapClient } from "mailtrap";
 import {
+    getPasswordchangedEmailTempale,
   getPasswordResetEmailTempale,
   getPasswordResetSuccessEmailTempale,
   getVerificationEmailTempale,
@@ -85,5 +86,22 @@ export const sendResetSuccessEmail = async (email) => {
   } catch (error) {
     console.error("Error sending password reset succes email", error);
     throw new Error(`Error sending password reset succes email: ${error}`);
+  }
+};
+
+export const sendPasswordchangedEmail = async (email) => {
+  try {
+    const response = await client.send({
+      from: sender,
+      to: [{ email }],
+      subject: "Password Reset Successful",
+      html: getPasswordchangedEmailTempale(),
+      category: "Password Reset",
+    });
+
+    console.log("Email sent successfully", response);
+  } catch (error) {
+    console.error("Error sending password changed email", error);
+    throw new Error(`Error sending password changed email: ${error}`);
   }
 };

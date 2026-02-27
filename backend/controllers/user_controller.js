@@ -2,6 +2,7 @@ import User from "../models/user_model.js";
 import bcrypt from "bcryptjs";
 import { generateToken } from "../utils/jwt.js";
 import {
+  sendPasswordchangedEmail,
   sendPasswordResetEmail,
   sendResetSuccessEmail,
   sendVerificationEmail,
@@ -289,6 +290,8 @@ export const changePassword = async (req, res) => {
     const hashedPassword = await bcrypt.hash(newPassword, 10);
     user.password = hashedPassword;
     await user.save();
+
+    await sendPasswordchangedEmail(user.email);
 
     res.status(200).json({
       success: true,

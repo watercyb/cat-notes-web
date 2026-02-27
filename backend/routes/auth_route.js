@@ -10,7 +10,11 @@ import {
   signup,
   verifyEmail,
 } from "../controllers/user_controller.js";
-import { rateCheckResetPassword, rateCheckSignup, verifyToken } from "../middleware/middleware.js";
+import {
+  rateCheckResetPassword,
+  rateCheckSignup,
+  verifyToken,
+} from "../middleware/middleware.js";
 
 const router = express.Router();
 
@@ -31,6 +35,6 @@ router.post("/forgot-password", rateCheckResetPassword, forgotPassword);
 
 router.post("/reset-password/:token", resetPassword);
 
-router.post("/password", verifyToken, changePassword);
+router.post("/password", verifyToken, rateCheckSignup, changePassword);
 
 export default router;
