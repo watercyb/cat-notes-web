@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import useUserStore from "../stores/useUserStore";
 import { getColorFromName } from "../utils/getColorFromName";
 import { useNavigate } from "react-router-dom";
+import ChangeUsernameDialog from "./ChangeUsernameDialog";
 
 const UserButton = () => {
   const [open, setOpen] = useState(false);
@@ -46,6 +47,9 @@ const UserButton = () => {
           </div>
 
           <ul className="menu menu-compact p-2">
+            <li>
+              <ChangeUsernameDialog />
+            </li>
             <li>
               <button
                 className=""

@@ -274,9 +274,7 @@ export const changePassword = async (req, res) => {
         message: "New password is needed",
       });
 
-    const user = await User.findOne({ email: req.user?.email }).populate(
-      "notes",
-    );
+    const user = await User.findById(user._id);
     if (user?.password === "clerkUser")
       return res.status(400).json({
         success: false,
@@ -299,6 +297,41 @@ export const changePassword = async (req, res) => {
     });
   } catch (error) {
     console.log("Error in changePassword: ", error.message);
+    res.status(500).json({ success: false, message: "Server internal error" });
+  }
+};
+
+export const changeUsername = async (req, res) => {
+  try {
+    const { name } = req.body;
+    if (!name)
+      return res.status(400).json({
+        success: false,
+        message: "New username is needed",
+      });
+
+    const user = await User.findById(req.user?._id);
+    if (!user)
+      return res.status(400).json({
+        success: false,
+        message: "User not found",
+      });
+
+    if (user?.password === "clerkUser")
+      return res.status(400).json({
+        success: false,
+        message: "Username change isn't enabled for this account",
+      });
+
+    user.name = name;
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Username is changed",
+    });
+  } catch (error) {
+    console.log("Error in changeUsername: ", error.message);
     res.status(500).json({ success: false, message: "Server internal error" });
   }
 };

@@ -196,6 +196,27 @@ const useUserStore = create((set) => ({
       set({ isLoading: false });
     }
   },
+
+  changeUsername: async (name) => {
+    try {
+      set({ isLoading: true, error: null, isRateLimited: false });
+      await axiosInstance.post("/auth/username", { name });
+
+      set((state) => ({ user: { ...state.user, name } }));
+      toast.success("Username updated successfully");
+      return true;
+    } catch (error) {
+      if (error.response.status == 429) {
+        set({ isRateLimited: true });
+        set({ error: "Too many requests, please slow down" });
+      } else {
+        set({ error: error.response.data.message || "Error change username" });
+      }
+      return false;
+    } finally {
+      set({ isLoading: false });
+    }
+  },
 }));
 
 export default useUserStore;
