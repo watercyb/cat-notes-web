@@ -10,13 +10,13 @@ dotenv.config();
 
 const client = new MailtrapClient({
   token: process.env.MAILTRAP_TOKEN,
-  sandbox: true,
-  testInboxId: 4332346,
+  //sandbox: true,
+  //testInboxId: 4419367
 });
 
 const sender = {
-  email: "hello@demomailtrap.co",
-  name: "Mailtrap Test",
+  email: "notes@bbjdev.com",
+  name: "Cat Notes",
 };
 
 export const sendVerificationEmail = async (email, token) => {
