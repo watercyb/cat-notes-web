@@ -3,6 +3,7 @@ import {
   getPasswordResetEmailTempale,
   getPasswordResetSuccessEmailTempale,
   getVerificationEmailTempale,
+  getWelcomeEmailTempale,
 } from "./emailTemplates.js";
 import dotenv from "dotenv";
 
@@ -15,7 +16,7 @@ const client = new MailtrapClient({
 });
 
 const sender = {
-  email: "notes@bbjdev.com",
+  email: "notes@notes.bbjdev.com",
   name: "Cat Notes",
 };
 
@@ -41,12 +42,9 @@ export const sendWelcomeEmail = async (email, name, url) => {
     const response = await client.send({
       from: sender,
       to: [{ email }],
-      template_uuid: "0c3bd8d0-546b-47fe-a1f4-84d19b6414ab",
-      template_variables: {
-        company_info_name: "Auth Company",
-        name,
-        url,
-      },
+      subject: "Welcome to Cat Notes",
+      html: getWelcomeEmailTempale(process.env.RENDER_EXTERNAL_URL),
+      category: "Welcome",
     });
 
     console.log("Email sent successfully", response);
