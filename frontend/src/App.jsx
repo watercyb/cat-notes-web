@@ -154,9 +154,7 @@ const App = () => {
           <Route
             path="/reset-password/:token"
             element={
-              <BlockUser>
                 <ResetPasswordPage />
-              </BlockUser>
             }
           />
           <Route path="*" element={<Navigate to="/" replace />} />

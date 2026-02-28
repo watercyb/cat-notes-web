@@ -66,13 +66,13 @@ export const login = async (req, res) => {
 
     const user = await User.findOne({ email }).populate("notes");
     if (user?.password === "clerkUser")
-      return res.status(400).json({
+      return res.status(401).json({
         success: false,
         message: "Password login isn't enabled for this account",
       });
     if (!user || !(await bcrypt.compare(password, user.password)))
       return res
-        .status(400)
+        .status(401)
         .json({ success: false, message: "Invalid credentials" });
 
     generateToken(req, res, user._id);
@@ -133,14 +133,13 @@ export const checkAuth = async (req, res) => {
 export const verifyEmail = async (req, res) => {
   try {
     const { code } = req.body;
-    const user = req.user;
-
+    const user = await User.findById(req.user._id).populate("notes");
     if (
       !user ||
       user.verificationToken != code ||
       user.verificationTokenExpiresAt < Date.now()
     )
-      return res.status(400).json({
+      return res.status(403).json({
         success: false,
         message: "Invalid or expired verification code",
       });
@@ -164,7 +163,7 @@ export const verifyEmail = async (req, res) => {
     });
   } catch (error) {
     console.log("Error in verifyEmail: ", error.message);
-    res.status(400).json({ success: false, message: error.message });
+    res.status(500).json({ success: false, message: error.message });
   }
 };
 
@@ -173,9 +172,10 @@ export const forgotPassword = async (req, res) => {
     const { email } = req.body;
     const user = await User.findOne({ email });
     if (!user)
-      return res
-        .status(400)
-        .json({ success: false, message: "User not found" });
+      return res.status(200).json({
+        success: true,
+        message: "Password reset link sent to your email",
+      });
 
     const resetToken = crypto.randomBytes(20).toString("hex");
     const resetTokenExpiresAt = Date.now() + 1 * 60 * 60 * 1000; // 1 hour
@@ -195,7 +195,7 @@ export const forgotPassword = async (req, res) => {
     });
   } catch (error) {
     console.log("Error in forgotPassword: ", error.message);
-    res.status(400).json({ success: false, message: error.message });
+    res.status(500).json({ success: false, message: error.message });
   }
 };
 
@@ -211,7 +211,7 @@ export const resetPassword = async (req, res) => {
 
     if (!user)
       return res
-        .status(400)
+        .status(401)
         .json({ success: false, message: "Invalid or expired reset token" });
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -228,7 +228,7 @@ export const resetPassword = async (req, res) => {
       .json({ success: true, message: "Password reset successful" });
   } catch (error) {
     console.log("Error in resetPassword: ", error.message);
-    res.status(400).json({ success: false, message: error.message });
+    res.status(500).json({ success: false, message: error.message });
   }
 };
 
@@ -237,11 +237,11 @@ export const resendEmailVerification = async (req, res) => {
     const user = req.user;
     if (!user)
       return res
-        .status(400)
+        .status(403)
         .json({ success: false, message: "User not found" });
     if (user.isVerified)
       res
-        .status(400)
+        .status(403)
         .json({ success: false, message: "Email already verified" });
 
     const verificationToken = Math.floor(
@@ -269,20 +269,20 @@ export const changePassword = async (req, res) => {
   try {
     const { oldPassword, newPassword } = req.body;
     if (!newPassword)
-      return res.status(400).json({
+      return res.status(422).json({
         success: false,
         message: "New password is needed",
       });
 
-    const user = await User.findById(user._id);
+    const user = await User.findById(req.user?._id);
     if (user?.password === "clerkUser")
-      return res.status(400).json({
+      return res.status(403).json({
         success: false,
         message: "Password change isn't enabled for this account",
       });
     if (!user || !(await bcrypt.compare(oldPassword, user.password)))
       return res
-        .status(400)
+        .status(401)
         .json({ success: false, message: "Invalid credentials" });
 
     const hashedPassword = await bcrypt.hash(newPassword, 10);
@@ -305,7 +305,7 @@ export const changeUsername = async (req, res) => {
   try {
     const { name } = req.body;
     if (!name)
-      return res.status(400).json({
+      return res.status(422).json({
         success: false,
         message: "New username is needed",
       });
@@ -318,7 +318,7 @@ export const changeUsername = async (req, res) => {
       });
 
     if (user?.password === "clerkUser")
-      return res.status(400).json({
+      return res.status(403).json({
         success: false,
         message: "Username change isn't enabled for this account",
       });
