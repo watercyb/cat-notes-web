@@ -97,9 +97,9 @@ export const deleteNode = async (req, res) => {
       !noteId ||
       !user.notes.some((id) => id.toString() === noteId.toString())
     )
-      return res
-        .status(400)
-        .json({ success: false, message: "Invalid note id" });
+      return res.status(200).json({
+        success: true,
+      });
 
     await User.findByIdAndUpdate(
       user._id,
@@ -211,7 +211,7 @@ export const getNode = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      note
+      note,
     });
   } catch (error) {
     console.log("Error in getNode: ", error.message);
