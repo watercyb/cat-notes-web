@@ -75,7 +75,11 @@ export const verifyToken = async (req, res, next) => {
     } else {
       let token;
       if (req.headers["x-client-type"] == "android-app") {
-        token = req.headers["authorization"].split(" ")[1];
+        let str = req.headers["authorization"];
+        if (str) {
+          str = str.split(" ");
+          if (str.length == 2) token = str[1];
+        }
       } else {
         token = req.cookies.token;
       }

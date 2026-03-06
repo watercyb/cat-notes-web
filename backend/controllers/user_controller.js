@@ -109,7 +109,7 @@ export const login = async (req, res) => {
 export const logout = async (req, res) => {
   try {
     const user = req.user;
-    await redis.del(`refresh_token:${user._id}`);
+    if (user?._id) await redis.del(`refresh_token:${user._id}`);
 
     res.clearCookie("token");
     res.clearCookie("refreshToken", refreshCookieOptions);
@@ -354,7 +354,11 @@ export const refresh = async (req, res) => {
   try {
     let refreshToken;
     if (req.headers["x-client-type"] == "android-app") {
-      refreshToken = req.headers["refreshToken"].split(" ")[1];
+      let token = req.body?.refreshToken;
+      if (token) {
+        token = token.split(" ");
+        if (token.length == 2) refreshToken = token[1];
+      }
     } else {
       refreshToken = req.cookies.refreshToken;
     }
