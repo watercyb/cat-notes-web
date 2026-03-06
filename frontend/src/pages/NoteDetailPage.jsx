@@ -57,8 +57,6 @@ const NoteDetailPage = () => {
             </button>
           </div>
 
-          <div>{id}</div>
-
           <div className="card bg-base-100">
             <div className="card-body">
               <div className="form-control mb-4">
