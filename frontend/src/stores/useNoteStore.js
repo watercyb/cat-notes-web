@@ -93,7 +93,7 @@ const useNoteStore = create((set) => ({
             res.data.newNote,
           ],
         }));
-        toast.success("Duplicate note found, two versions are all kept.");
+        toast.success("Duplicate notes found. Both versions were kept.");
         return true;
       } else {
         set((state) => ({

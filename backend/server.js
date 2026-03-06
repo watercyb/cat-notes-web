@@ -7,6 +7,7 @@ import noteRoutes from "./routes/note_route.js";
 import { rateCheck } from "./middleware/middleware.js";
 import { clerkMiddleware } from "@clerk/express";
 import path from "path";
+import analytics from "./routes/analytics_route.js";
 
 dotenv.config();
 
@@ -22,6 +23,7 @@ app.use(cookieParser());
 
 app.use("/api/auth", rateCheck, authRoutes);
 app.use("/api/note", rateCheck, noteRoutes);
+app.use("/api/analytics", rateCheck, analytics);
 
 if (process.env.NODE_ENV !== "development") {
   app.use(express.static(path.join(__dirname, "./frontend/dist")));

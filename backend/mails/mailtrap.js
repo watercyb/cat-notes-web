@@ -1,6 +1,6 @@
 import { MailtrapClient } from "mailtrap";
 import {
-    getPasswordchangedEmailTempale,
+  getPasswordchangedEmailTempale,
   getPasswordResetEmailTempale,
   getPasswordResetSuccessEmailTempale,
   getVerificationEmailTempale,
@@ -9,6 +9,8 @@ import {
 import dotenv from "dotenv";
 
 dotenv.config();
+
+let mailCount = 0;
 
 const client = new MailtrapClient({
   token: process.env.MAILTRAP_TOKEN,
@@ -31,6 +33,7 @@ export const sendVerificationEmail = async (email, token) => {
       category: "Email Verification",
     });
 
+    mailCount++;
     console.log("Email sent successfully", response);
   } catch (error) {
     console.error("Error sending verification email", error);
@@ -48,6 +51,7 @@ export const sendWelcomeEmail = async (email, name, url) => {
       category: "Welcome",
     });
 
+    mailCount++;
     console.log("Email sent successfully", response);
   } catch (error) {
     console.error("Error sending welcome email", error);
@@ -65,6 +69,7 @@ export const sendPasswordResetEmail = async (email, resetURL) => {
       category: "Password Reset",
     });
 
+    mailCount++;
     console.log("Email sent successfully", response);
   } catch (error) {
     console.error("Error sending password reset email", error);
@@ -82,6 +87,7 @@ export const sendResetSuccessEmail = async (email) => {
       category: "Password Reset",
     });
 
+    mailCount++;
     console.log("Email sent successfully", response);
   } catch (error) {
     console.error("Error sending password reset succes email", error);
@@ -99,9 +105,14 @@ export const sendPasswordchangedEmail = async (email) => {
       category: "Password Reset",
     });
 
+    mailCount++;
     console.log("Email sent successfully", response);
   } catch (error) {
     console.error("Error sending password changed email", error);
     throw new Error(`Error sending password changed email: ${error}`);
   }
+};
+
+export const getMailCount = () => {
+  return mailCount;
 };
