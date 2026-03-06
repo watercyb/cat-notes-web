@@ -217,6 +217,19 @@ const useUserStore = create((set) => ({
       set({ isLoading: false });
     }
   },
+
+  refresh: async () => {
+    try {
+      await axiosInstance.post("/auth/refresh");
+    } catch (error) {
+      if (error.response.status == 429) {
+        set({ isRateLimited: true });
+        set({ error: "Too many requests, please slow down" });
+      } else {
+        set({ error: error.response.data.message || "Error refresh token" });
+      }
+    }
+  },
 }));
 
 export default useUserStore;

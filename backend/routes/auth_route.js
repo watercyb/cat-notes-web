@@ -6,6 +6,7 @@ import {
   forgotPassword,
   login,
   logout,
+  refresh,
   resendEmailVerification,
   resetPassword,
   signup,
@@ -33,11 +34,10 @@ router.post(
   resendEmailVerification,
 );
 router.post("/forgot-password", rateCheckResetPassword, forgotPassword);
-
 router.post("/reset-password/:token", resetPassword);
-
 router.post("/password", verifyToken, rateCheckSignup, changePassword);
-
 router.post("/username", verifyToken, changeUsername);
+
+router.post("/refresh", refresh);
 
 export default router;

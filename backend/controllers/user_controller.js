@@ -1,6 +1,10 @@
 import User from "../models/user_model.js";
 import bcrypt from "bcryptjs";
-import { generateToken } from "../utils/jwt.js";
+import {
+  generateRefreshToken,
+  generateToken,
+  refreshCookieOptions,
+} from "../utils/jwt.js";
 import {
   sendPasswordchangedEmail,
   sendPasswordResetEmail,
@@ -9,6 +13,8 @@ import {
   sendWelcomeEmail,
 } from "../mails/mailtrap.js";
 import crypto from "crypto";
+import { redis } from "../db/redis.js";
+import jwt from "jsonwebtoken";
 
 export const signup = async (req, res) => {
   try {
@@ -39,7 +45,10 @@ export const signup = async (req, res) => {
       verificationToken,
       verificationTokenExpiresAt: Date.now() + 24 * 60 * 60 * 1000,
     });
+
     generateToken(req, res, user._id);
+    generateRefreshToken(req, res, decoded.userId);
+
     delete user.password;
 
     await sendVerificationEmail(user.email, verificationToken);
@@ -76,6 +85,7 @@ export const login = async (req, res) => {
         .json({ success: false, message: "Invalid credentials" });
 
     generateToken(req, res, user._id);
+    generateRefreshToken(req, res, user._id);
 
     user.lastLogin = new Date();
     await user.save();
@@ -98,7 +108,11 @@ export const login = async (req, res) => {
 
 export const logout = async (req, res) => {
   try {
+    const user = req.user;
+    await redis.del(`refresh_token:${user._id}`);
+
     res.clearCookie("token");
+    res.clearCookie("refreshToken", refreshCookieOptions);
     res.status(200).json({ success: true, message: "Logged out successfully" });
   } catch (error) {
     console.log("Error in logout: ", error.message);
@@ -332,6 +346,38 @@ export const changeUsername = async (req, res) => {
     });
   } catch (error) {
     console.log("Error in changeUsername: ", error.message);
+    res.status(500).json({ success: false, message: "Server internal error" });
+  }
+};
+
+export const refresh = async (req, res) => {
+  try {
+    let refreshToken;
+    if (req.headers["x-client-type"] == "android-app") {
+      refreshToken = req.headers["refreshToken"].split(" ")[1];
+    } else {
+      refreshToken = req.cookies.refreshToken;
+    }
+
+    if (!refreshToken)
+      return res
+        .status(401)
+        .json({ success: false, message: "Invalid credentials" });
+
+    const decoded = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET);
+    const storedToken = await redis.get(`refresh_token:${decoded.userId}`);
+
+    if (storedToken !== refreshToken)
+      return res
+        .status(401)
+        .json({ success: false, message: "Invalid credentials" });
+
+    generateToken(req, res, decoded.userId);
+    generateRefreshToken(req, res, decoded.userId);
+
+    res.json({ success: true, message: "Token refreshed successfully" });
+  } catch (error) {
+    console.log("Error in refreshToken controller", error.message);
     res.status(500).json({ success: false, message: "Server internal error" });
   }
 };

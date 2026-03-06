@@ -3,9 +3,11 @@ import { PlusIcon } from "lucide-react";
 import { useAuth } from "@clerk/clerk-react";
 import ClerkButton from "./ClerkButton";
 import UserButton from "./UserButton";
+import useUserStore from "../stores/useUserStore";
 
 const Navbar = () => {
   const { isSignedIn } = useAuth();
+  const { refresh } = useUserStore();
 
   return (
     <header className="bg-base-300 border-b border-base-content/10">
@@ -20,6 +22,7 @@ const Navbar = () => {
               <span className="hidden sm:inline">New Note</span>
             </Link>
             {!isSignedIn ? <UserButton /> : <ClerkButton />}
+            <button onClick={() => refresh()}>aaa</button>
           </div>
         </div>
       </div>

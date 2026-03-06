@@ -92,20 +92,20 @@ export const verifyToken = async (req, res, next) => {
       } catch (error) {
         return res
           .status(401)
-          .json({ success: false, message: "Unauthorized - invalid token" });
+          .json({ success: false, message: "Invalid credentials" });
       }
 
       if (!decoded)
         return res
           .status(401)
-          .json({ success: false, message: "Unauthorized - invalid token" });
+          .json({ success: false, message: "Invalid credentials" });
 
       const user = await User.findById(decoded.userId).select("-password");
 
       if (!user)
         return res
           .status(401)
-          .json({ success: false, message: "Unauthorized - User not found" });
+          .json({ success: false, message: "Invalid credentials" });
 
       req.user = user;
 
