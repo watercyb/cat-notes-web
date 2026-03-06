@@ -225,8 +225,6 @@ const useUserStore = create((set) => ({
       if (error.response.status == 429) {
         set({ isRateLimited: true });
         set({ error: "Too many requests, please slow down" });
-      } else {
-        set({ error: error.response.data.message || "Error refresh token" });
       }
     }
   },

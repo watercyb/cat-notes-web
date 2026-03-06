@@ -6,6 +6,7 @@ import {
 import User from "../models/user_model.js";
 import jwt from "jsonwebtoken";
 import { clerkClient } from "@clerk/express";
+import { getToken } from "../utils/tokens.js";
 
 export const rateCheck = async (req, res, next) => {
   try {
@@ -87,7 +88,7 @@ export const verifyToken = async (req, res, next) => {
       if (!token)
         return res.status(401).json({
           success: false,
-          message: "Unauthorized - no token provided",
+          message: "Invalid credentials",
         });
 
       let decoded;
@@ -106,7 +107,7 @@ export const verifyToken = async (req, res, next) => {
 
       const user = await User.findById(decoded.userId).select("-password");
 
-      if (!user)
+      if (!user || getToken(user._id.toString()) != token)
         return res
           .status(401)
           .json({ success: false, message: "Invalid credentials" });

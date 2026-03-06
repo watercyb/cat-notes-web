@@ -1,5 +1,6 @@
 import jwt from "jsonwebtoken";
 import { redis } from "../db/redis.js";
+import { setToken } from "./tokens.js";
 
 export const generateToken = async (req, res, userId) => {
   const token = jwt.sign({ userId }, process.env.JWT_SECRET, {
@@ -16,6 +17,8 @@ export const generateToken = async (req, res, userId) => {
       maxAge: 15 * 60 * 1000,
     });
   }
+
+  setToken(userId, token);
 };
 
 export const generateRefreshToken = (req, res, userId) => {

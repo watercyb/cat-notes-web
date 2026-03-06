@@ -46,7 +46,7 @@ export const signup = async (req, res) => {
       verificationTokenExpiresAt: Date.now() + 24 * 60 * 60 * 1000,
     });
 
-    generateToken(req, res, user._id);
+    generateToken(req, res, user._id.toString());
     generateRefreshToken(req, res, decoded.userId);
 
     delete user.password;
@@ -84,7 +84,7 @@ export const login = async (req, res) => {
         .status(401)
         .json({ success: false, message: "Invalid credentials" });
 
-    generateToken(req, res, user._id);
+    generateToken(req, res, user._id.toString());
     generateRefreshToken(req, res, user._id);
 
     user.lastLogin = new Date();
