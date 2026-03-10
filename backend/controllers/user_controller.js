@@ -126,7 +126,7 @@ export const checkAuth = async (req, res) => {
     if (!user) {
       return res
         .status(401)
-        .json({ success: false, message: "Unauthorized - User not found" });
+        .json({ success: false, message: "Invalid credentials" });
     }
 
     res.status(200).json({

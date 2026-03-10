@@ -7,7 +7,7 @@ export const getNotes = async (req, res) => {
     if (!userId)
       return res
         .status(401)
-        .json({ success: false, message: "Unauthorized - User not found" });
+        .json({ success: false, message: "Invalid credentials" });
 
     const user = await User.findById(userId).populate("notes");
 
@@ -27,7 +27,7 @@ export const getNotesIdAndVersion = async (req, res) => {
     if (!userId)
       return res
         .status(401)
-        .json({ success: false, message: "Unauthorized - User not found" });
+        .json({ success: false, message: "Invalid credentials" });
 
     const user = await User.findById(userId).populate("notes");
 
@@ -52,14 +52,14 @@ export const createNote = async (req, res) => {
     if (!userId)
       return res
         .status(401)
-        .json({ success: false, message: "Unauthorized - User not found" });
+        .json({ success: false, message: "Invalid credentials" });
 
     const { title, content, version } = req.body;
     if (title === null) title = "";
     if (content === null) content = "";
     if (version === undefined)
       return res
-        .status(400)
+        .status(422)
         .json({ success: false, message: "All fields are required" });
 
     const note = await Note.create({
@@ -90,7 +90,7 @@ export const deleteNode = async (req, res) => {
     if (!user)
       return res
         .status(401)
-        .json({ success: false, message: "Unauthorized - User not found" });
+        .json({ success: false, message: "Invalid credentials" });
 
     const { noteId } = req.params;
     if (
@@ -124,7 +124,7 @@ export const updateNote = async (req, res) => {
     if (!user)
       return res
         .status(401)
-        .json({ success: false, message: "Unauthorized - User not found" });
+        .json({ success: false, message: "Invalid credentials" });
 
     const { noteId, title, content, version } = req.body;
     if (
@@ -132,18 +132,18 @@ export const updateNote = async (req, res) => {
       !user.notes.some((id) => id.toString() === noteId.toString())
     )
       return res
-        .status(400)
+        .status(403)
         .json({ success: false, message: "Invalid note id" });
     if (title === null) title = "";
     if (content === null) content = "";
     if (version === undefined)
       return res
-        .status(400)
-        .json({ success: false, message: "Please input update field" });
+        .status(422)
+        .json({ success: false, message: "All fields are required" });
 
     let note = await Note.findById(noteId);
 
-    if (!note) return res.status(404).json({ message: "Note not found" });
+    if (!note) return res.status(403).json({ message: "Note not found" });
 
     if (note.version < version) {
       note.title = title;
@@ -196,7 +196,7 @@ export const getNode = async (req, res) => {
     if (!user)
       return res
         .status(401)
-        .json({ success: false, message: "Unauthorized - User not found" });
+        .json({ success: false, message: "Invalid credentials" });
 
     const { noteId } = req.params;
     if (
@@ -204,7 +204,7 @@ export const getNode = async (req, res) => {
       !user.notes.some((id) => id.toString() === noteId.toString())
     )
       return res
-        .status(400)
+        .status(403)
         .json({ success: false, message: "Invalid note id" });
 
     const note = await Note.findById(noteId);
