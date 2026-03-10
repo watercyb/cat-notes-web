@@ -18,7 +18,7 @@ const port = process.env.PORT;
 const app = express();
 const __dirname = path.resolve();
 
-let maintenanceMode = true;
+let maintenanceMode = false;
 
 // Middleware to block requests during maintenance
 app.use((req, res, next) => {
