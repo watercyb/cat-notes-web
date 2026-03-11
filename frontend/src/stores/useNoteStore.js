@@ -25,13 +25,14 @@ const useNoteStore = create((set) => ({
     }
   },
 
-  createNode: async (title, content, version) => {
+  createNode: async (title, content, version, isEncrypted) => {
     try {
       set({ isLoading: true, isRateLimited: false });
       const res = await axiosInstance.post("/note/create", {
         title,
         content,
         version,
+        isEncrypted,
       });
 
       set((state) => ({
@@ -72,7 +73,7 @@ const useNoteStore = create((set) => ({
     }
   },
 
-  updateNote: async (noteId, title, content, version) => {
+  updateNote: async (noteId, title, content, version, isEncrypted) => {
     try {
       set({ isUploading: true, isRateLimited: false });
       const res = await axiosInstance.post("/note/update", {
@@ -80,6 +81,7 @@ const useNoteStore = create((set) => ({
         title,
         content,
         version,
+        isEncrypted,
       });
 
       if (!res.data.success) {

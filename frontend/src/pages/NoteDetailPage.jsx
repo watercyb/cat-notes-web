@@ -11,6 +11,7 @@ const NoteDetailPage = () => {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [version, setVersion] = useState(0);
+  const [isEncrypted, setIsEncrypted] = useState(0);
 
   const navigate = useNavigate();
 
@@ -27,6 +28,7 @@ const NoteDetailPage = () => {
       setTitle(note.title);
       setContent(note.content);
       setVersion(note.version + 1);
+      setIsEncrypted(note.isEncrypted);
     }
   }, [id, navigate, notes]);
 
@@ -36,7 +38,8 @@ const NoteDetailPage = () => {
   };
 
   const handleSave = async () => {
-    if (await updateNote(id, title, content, version)) navigate("/");
+    if (await updateNote(id, title, content, version, isEncrypted))
+      navigate("/");
   };
 
   return (
