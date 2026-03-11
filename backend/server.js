@@ -46,14 +46,16 @@ if (process.env.NODE_ENV !== "development") {
   });
 }
 
-const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+app.use((req, res) => {
+  res.status(404).json({ success: false, message: "Not Found" });
+});
 
 cron.schedule("0 3 * * *", async () => {
   // 3 AM every day
   console.log("Maintenance starting...");
   maintenanceMode = true;
 
-  await sleep(1000);
+  await new Promise((resolve) => setTimeout(resolve, 500));
 
   try {
     await cleanup();
