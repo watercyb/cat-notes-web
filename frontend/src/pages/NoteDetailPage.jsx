@@ -5,8 +5,7 @@ import toast from "react-hot-toast";
 import { ArrowLeftIcon, LoaderIcon, Trash2Icon } from "lucide-react";
 import useNoteStore from "../stores/useNoteStore";
 import PasswordDialog from "../components/NotePasswordDialog";
-import { decryptText } from "../utils/crypto";
-
+import { decryptText, encryptText } from "../utils/crypto";
 const NoteDetailPage = () => {
   const { notes, isUploading, deleteNote, updateNote } = useNoteStore();
 
@@ -15,7 +14,9 @@ const NoteDetailPage = () => {
   const [version, setVersion] = useState(0);
   const [isEncrypted, setIsEncrypted] = useState(0);
   const [showDialog, setShowDialog] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
   const [showContent, setShowContent] = useState(false);
+  const [password, setPassword] = useState("");
 
   const navigate = useNavigate();
 
@@ -30,6 +31,7 @@ const NoteDetailPage = () => {
       navigate("/");
     } else {
       if (note.isEncrypted) {
+        setShowConfirm(false);
         setShowDialog(true);
       } else {
         setShowContent(true);
@@ -39,7 +41,7 @@ const NoteDetailPage = () => {
       setVersion(note.version + 1);
       setIsEncrypted(note.isEncrypted);
     }
-  }, [id, isEncrypted, navigate, notes]);
+  }, [id, isEncrypted, navigate]);
 
   const handleDelete = async () => {
     if (!window.confirm("Are you sure you want to delete this note?")) return;
@@ -47,26 +49,61 @@ const NoteDetailPage = () => {
   };
 
   const handleSave = async () => {
-    if (await updateNote(id, title, content, version, isEncrypted))
+    if (
+      await updateNote(
+        id,
+        title,
+        await encryptText(password, content),
+        version,
+        isEncrypted,
+      )
+    )
       navigate("/");
+  };
+
+  const changePassword = () => {
+    setShowConfirm(true);
+    setShowDialog(true);
   };
 
   return (
     <div>
       <PasswordDialog
         open={showDialog}
-        isConfirm={false}
+        showConfirm={showConfirm}
         onClose={() => {
-          navigate("/");
+          setShowDialog(false);
+          if (!showConfirm) navigate("/");
         }}
         onConfirm={async (password) => {
-          try {
-            setContent(await decryptText(password, content));
-            setShowDialog(false);
-            setShowContent(true);
-          } catch {
-            navigate("/");
+          if (!showConfirm) {
+            try {
+              setContent(await decryptText(password, content));
+              setShowContent(true);
+              setPassword(password);
+            } catch {
+              toast.error("Invalid password");
+              navigate("/");
+            }
+          } else {
+            if (password) {
+              setPassword(password);
+              if (
+                await updateNote(
+                  id,
+                  title,
+                  await encryptText(password, content),
+                  version,
+                  isEncrypted,
+                )
+              )
+                navigate("/");
+              toast.success("Password updated");
+            } else {
+              toast.error("Password cannot be empty");
+            }
           }
+          setShowDialog(false);
         }}
       />
 
@@ -114,7 +151,14 @@ const NoteDetailPage = () => {
                   />
                 </div>
 
-                <div className="card-actions justify-end">
+                <div className="card-actions justify-end items-center">
+                  <label
+                    className="label cursor-pointer mr-auto"
+                    onClick={changePassword}
+                  >
+                    <span className="label-text ml-2">Update Password</span>
+                  </label>
+
                   <button
                     className="btn btn-primary"
                     disabled={isUploading}

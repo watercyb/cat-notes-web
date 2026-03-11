@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-const PasswordDialog = ({ open, isConfirm, onClose, onConfirm }) => {
+const PasswordDialog = ({ open, showConfirm, onClose, onConfirm }) => {
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
 
@@ -21,7 +21,7 @@ const PasswordDialog = ({ open, isConfirm, onClose, onConfirm }) => {
     <div className="modal modal-open">
       <div className="modal-box">
         <h3 className="font-bold text-lg">
-          {isConfirm ? "Set Password" : "Note Password"}
+          {showConfirm ? "Set Password" : "Note Password"}
         </h3>
 
         <div className="py-4 space-y-3">
@@ -38,7 +38,7 @@ const PasswordDialog = ({ open, isConfirm, onClose, onConfirm }) => {
             placeholder="Confirm Password"
             className="input input-bordered w-full"
             value={confirm}
-            hidden={!isConfirm}
+            hidden={!showConfirm}
             onChange={(e) => setConfirm(e.target.value)}
           />
         </div>
