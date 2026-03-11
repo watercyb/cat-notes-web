@@ -46,6 +46,8 @@ if (process.env.NODE_ENV !== "development") {
   });
 }
 
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
 cron.schedule("0 3 * * *", async () => {
   // 3 AM every day
   console.log("Maintenance starting...");
