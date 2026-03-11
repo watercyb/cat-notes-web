@@ -54,18 +54,20 @@ export const createNote = async (req, res) => {
         .status(401)
         .json({ success: false, message: "Invalid credentials" });
 
-    const { title, content, version } = req.body;
+    let { title, content, version, isEncrypted } = req.body;
     if (title === null) title = "";
     if (content === null) content = "";
     if (version === undefined)
       return res
         .status(422)
         .json({ success: false, message: "All fields are required" });
+    if (isEncrypted === undefined) isEncrypted = false;
 
     const note = await Note.create({
       title,
       content,
       version,
+      isEncrypted,
     });
 
     await User.findByIdAndUpdate(
@@ -126,7 +128,7 @@ export const updateNote = async (req, res) => {
         .status(401)
         .json({ success: false, message: "Invalid credentials" });
 
-    const { noteId, title, content, version } = req.body;
+    let { noteId, title, content, version, isEncrypted } = req.body;
     if (
       !noteId ||
       !user.notes.some((id) => id.toString() === noteId.toString())
@@ -136,7 +138,7 @@ export const updateNote = async (req, res) => {
         .json({ success: false, message: "Invalid note id" });
     if (title === null) title = "";
     if (content === null) content = "";
-    if (version === undefined)
+    if (version === undefined || isEncrypted === undefined)
       return res
         .status(422)
         .json({ success: false, message: "All fields are required" });
@@ -170,6 +172,7 @@ export const updateNote = async (req, res) => {
         title,
         content,
         version,
+        isEncrypted,
       });
 
       await User.findByIdAndUpdate(

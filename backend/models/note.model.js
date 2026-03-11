@@ -12,6 +12,10 @@ const noteSchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
+    isEncrypted: {
+      type: Boolean,
+      required: true,
+    },
   },
   { timestamps: true },
 );
