@@ -2,6 +2,7 @@ import { PenSquareIcon, Trash2Icon } from "lucide-react";
 import { Link } from "react-router";
 import { formatDate } from "../utils/formatDate";
 import useNoteStore from "../stores/useNoteStore";
+import { FiLock } from "react-icons/fi";
 
 const NoteCard = ({ note }) => {
   const { deleteNote } = useNoteStore();
@@ -16,7 +17,14 @@ const NoteCard = ({ note }) => {
         <h3 className="card-title text-base-content line-clamp-3">
           {note.title}
         </h3>
-        <p className="text-base-content/70 line-clamp-3">{note.content}</p>
+        {note.isEncrypted ? (
+          <div className="flex flex-col items-center justify-center pt-2">
+            <FiLock className="text-gray-400 w-5 h-5" />
+            <span className="text-gray-400 italic">Secure Note</span>
+          </div>
+        ) : (
+          <p className="text-base-content/70 line-clamp-3">{note.content}</p>
+        )}
         <div className="card-actions justify-between items-center mt-4">
           <span className="text-sm text-base-content/60">
             {formatDate(new Date(note.createdAt))}

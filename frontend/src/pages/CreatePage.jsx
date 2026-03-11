@@ -3,24 +3,60 @@ import { useState } from "react";
 import toast from "react-hot-toast";
 import { Link, useNavigate } from "react-router";
 import useNoteStore from "../stores/useNoteStore";
+import PasswordDialog from "../components/NotePasswordDialog";
+import { encryptText } from "../utils/crypto";
 
 const CreatePage = () => {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
+  const [password, setPassword] = useState("");
+  const [isEncrypted, setIsEncrypted] = useState(false);
   const { isLoading, createNode } = useNoteStore();
+  const [showPasswordDialog, setShowPasswordDialog] = useState(false);
 
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (await createNode(title, content, 0, false)) {
+    let c = content;
+    if (isEncrypted) c = await encryptText(password, content);
+    if (await createNode(title, c, 0, isEncrypted)) {
       toast.success("Note created successfully!", { id: "create" });
       navigate("/");
     }
   };
 
+  const secureNote = (e) => {
+    if (e.target.checked) {
+      setShowPasswordDialog(true);
+    } else {
+      setPassword("");
+      setIsEncrypted(false);
+    }
+  };
+
   return (
     <div>
+      <PasswordDialog
+        open={showPasswordDialog}
+        isConfirm={true}
+        onClose={() => {
+          setShowPasswordDialog(false);
+          setPassword("");
+          setIsEncrypted(false);
+        }}
+        onConfirm={(password) => {
+          if (password) {
+            setPassword(password);
+            setIsEncrypted(true);
+          } else {
+            setPassword("");
+            setIsEncrypted(false);
+          }
+          setShowPasswordDialog(false);
+        }}
+      />
+
       <div className="container mx-auto min-w-sm px-4 py-8">
         <div className="max-w-2xl mx-auto">
           <Link to={"/"} className="btn btn-ghost mb-6">
@@ -57,7 +93,17 @@ const CreatePage = () => {
                   />
                 </div>
 
-                <div className="card-actions justify-end">
+                <div className="card-actions justify-end items-center">
+                  <label className="label cursor-pointer mr-auto">
+                    <input
+                      type="checkbox"
+                      className="checkbox checkbox-primary"
+                      checked={isEncrypted}
+                      onChange={secureNote}
+                    />
+                    <span className="label-text ml-2">Secure Note</span>
+                  </label>
+
                   <button
                     type="submit"
                     className="btn btn-primary"

@@ -6,7 +6,6 @@ import useNoteStore from "../stores/useNoteStore";
 const HomePage = () => {
   const { notes, isLoading, isRateLimited } = useNoteStore();
 
-
   return (
     <div className="min-h-screen">
       <Navbar />

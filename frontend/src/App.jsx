@@ -14,8 +14,6 @@ import ResetPasswordPage from "./pages/ResetPasswordPage";
 import RateLimitTopBar from "./components/RateLimitTopBar";
 import { AuthenticateWithRedirectCallback } from "@clerk/clerk-react";
 import AuthCallbackPage from "./pages/AuthCallbackPage";
-import { useAuth } from "@clerk/clerk-react";
-import axiosInstance from "./utils/axios";
 import { useState } from "react";
 import ChangePassword from "./pages/ChangePassword";
 
@@ -23,7 +21,6 @@ const App = () => {
   const user = useUserStore((s) => s.user);
   const isCheckingAuth = useUserStore((s) => s.isCheckingAuth);
   const checkAuth = useUserStore((s) => s.checkAuth);
-  const { getToken } = useAuth();
   const [isCleckloading, setIsCleckloading] = useState(true);
 
   const CheckUser = ({ children }) => {
@@ -40,34 +37,9 @@ const App = () => {
   };
 
   useEffect(() => {
-    const initAuth = async () => {
-      let interceptorId;
-      try {
-        const token = await getToken();
-        if (token) {
-          interceptorId = axiosInstance.interceptors.request.use(
-            async (config) => {
-              const token = await getToken();
-              config.headers["Authorization"] = `Bearer ${token}`;
-              return config;
-            },
-          );
-        }
-        checkAuth();
-      } catch (error) {
-        console.log("Error in auth provider: ", error);
-      } finally {
-        setIsCleckloading(false);
-      }
-
-      return () => {
-        if (interceptorId)
-          axiosInstance.interceptors.request.eject(interceptorId);
-      };
-    };
-
-    initAuth();
-  }, [checkAuth, getToken]);
+    checkAuth();
+    setIsCleckloading(false);
+  }, [checkAuth]);
 
   if (isCheckingAuth || isCleckloading) return <LoadingSpinner />;
 
@@ -153,9 +125,7 @@ const App = () => {
           />
           <Route
             path="/reset-password/:token"
-            element={
-                <ResetPasswordPage />
-            }
+            element={<ResetPasswordPage />}
           />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
