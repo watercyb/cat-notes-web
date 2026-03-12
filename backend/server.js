@@ -64,6 +64,7 @@ cron.schedule("0 3 * * *", async () => {
   } finally {
     maintenanceMode = false;
     console.log("Maintenance ended.");
+    process.exit(0);
   }
 });
 
