@@ -53,7 +53,7 @@ const NoteDetailPage = () => {
       await updateNote(
         id,
         title,
-        await encryptText(password, content),
+        isEncrypted ? await encryptText(password, content) : content,
         version,
         isEncrypted,
       )
