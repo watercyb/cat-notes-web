@@ -152,12 +152,16 @@ const NoteDetailPage = () => {
                 </div>
 
                 <div className="card-actions justify-end items-center">
-                  <label
-                    className="label cursor-pointer mr-auto"
-                    onClick={changePassword}
-                  >
-                    <span className="label-text ml-2">Update Password</span>
-                  </label>
+                  {isEncrypted ? (
+                    <label
+                      className="label cursor-pointer mr-auto"
+                      onClick={changePassword}
+                    >
+                      <span className="label-text ml-2">Update Password</span>
+                    </label>
+                  ) : (
+                    <></>
+                  )}
 
                   <button
                     className="btn btn-primary"
