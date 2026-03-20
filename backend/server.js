@@ -10,6 +10,7 @@ import path from "path";
 import analytics from "./routes/analytics_route.js";
 import cron from "node-cron";
 import { cleanup } from "./utils/cleanup.js";
+import { exportdb } from "./controllers/analytics_controller.js";
 
 dotenv.config();
 
@@ -62,9 +63,9 @@ cron.schedule("0 3 * * *", async () => {
   } catch (err) {
     console.error("Cleanup error:", err);
   } finally {
+    await exportdb();
     maintenanceMode = false;
     console.log("Maintenance ended.");
-    process.exit(0);
   }
 });
 

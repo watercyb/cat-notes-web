@@ -16,6 +16,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.1013.0",
     "@clerk/express": "^1.7.69",
     "@upstash/ratelimit": "^2.0.8",
     "@upstash/redis": "^1.36.2",
@@ -25,6 +26,7 @@
     "cross-env": "^10.1.0",
     "dotenv": "^17.2.3",
     "express": "^5.2.1",
+    "fs": "^0.0.1-security",
     "jsonwebtoken": "^9.0.3",
     "mailtrap": "^4.4.0",
     "mongoose": "^9.1.5",
