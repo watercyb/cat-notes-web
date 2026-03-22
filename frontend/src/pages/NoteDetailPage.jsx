@@ -59,6 +59,7 @@ const NoteDetailPage = () => {
       )
     )
       navigate("/");
+    setVersion(version + 1);
   };
 
   const changePassword = () => {
@@ -98,6 +99,7 @@ const NoteDetailPage = () => {
                 )
               )
                 navigate("/");
+              setVersion(version + 1);
               toast.success("Password updated");
             } else {
               toast.error("Password cannot be empty");
