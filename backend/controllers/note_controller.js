@@ -159,9 +159,8 @@ export const updateNote = async (req, res) => {
         note,
       });
     } else if (
-      note.version == version &&
-      note.title == title &&
-      note.content == content
+      note.version > version ||
+      (note.title == title && note.content == content)
     ) {
       res.status(200).json({
         success: true,
