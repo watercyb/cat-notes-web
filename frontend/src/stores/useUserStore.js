@@ -228,6 +228,23 @@ const useUserStore = create((set) => ({
       }
     }
   },
+
+  deleteAccount: async () => {
+    try {
+      set({ error: null, isRateLimited: false });
+      await axiosInstance.delete("/auth");
+
+      set({ user: null });
+    } catch (error) {
+      if (error.response.status == 429) {
+        set({ isRateLimited: true });
+        set({ error: "Too many requests, please slow down" });
+      } else {
+        set({ error: error.response.data.message || "Error delete account" });
+      }
+      set({ user: null });
+    }
+  },
 }));
 
 export default useUserStore;

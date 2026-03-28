@@ -16,6 +16,8 @@ import { AuthenticateWithRedirectCallback } from "@clerk/clerk-react";
 import AuthCallbackPage from "./pages/AuthCallbackPage";
 import { useState } from "react";
 import ChangePassword from "./pages/ChangePassword";
+import DeleteAccount from "./pages/DeleteAccount";
+import DeleteAccountDialog from "./pages/DeleteAccountDialog";
 
 const App = () => {
   const user = useUserStore((s) => s.user);
@@ -126,6 +128,14 @@ const App = () => {
           <Route
             path="/reset-password/:token"
             element={<ResetPasswordPage />}
+          />
+          <Route
+            path="/delete"
+            element={
+              <CheckUser>
+                <DeleteAccount />
+              </CheckUser>
+            }
           />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

@@ -385,3 +385,20 @@ export const refresh = async (req, res) => {
     res.status(500).json({ success: false, message: "Server internal error" });
   }
 };
+
+export const deleteAccount = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id);
+
+    if (user?._id) await redis.del(`refresh_token:${user._id}`);
+
+    await User.findByIdAndDelete(user._id);
+
+    res.clearCookie("token");
+    res.clearCookie("refreshToken", refreshCookieOptions);
+    res.status(200).json({ success: true, message: "Logged out successfully" });
+  } catch (error) {
+    console.log("Error in logout: ", error.message);
+    res.status(500).json({ success: false, message: "Server internal error" });
+  }
+};

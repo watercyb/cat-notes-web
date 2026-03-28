@@ -3,6 +3,7 @@ import {
   changePassword,
   changeUsername,
   checkAuth,
+  deleteAccount,
   forgotPassword,
   login,
   logout,
@@ -39,5 +40,7 @@ router.post("/password", verifyToken, rateCheckSignup, changePassword);
 router.post("/username", verifyToken, changeUsername);
 
 router.post("/refresh", refresh);
+
+router.delete("/", verifyToken, deleteAccount);
 
 export default router;
