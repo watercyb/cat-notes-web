@@ -5,6 +5,7 @@ export const getVerificationEmailTempale = (verificationCode) => {
   const templatePath = path.join(
     process.cwd(),
     "backend",
+    "mails",
     "emails",
     "verification_email.html",
   );
@@ -17,6 +18,7 @@ export const getPasswordResetSuccessEmailTempale = () => {
   const templatePath = path.join(
     process.cwd(),
     "backend",
+    "mails",
     "emails",
     "password_reset_success.html",
   );
@@ -28,6 +30,7 @@ export const getPasswordResetEmailTempale = (resetURL) => {
  const templatePath = path.join(
     process.cwd(),
     "backend",
+    "mails",
     "emails",
     "password_reset.html",
   );
@@ -40,6 +43,7 @@ export const getWelcomeEmailTempale = (appUrl) => {
  const templatePath = path.join(
     process.cwd(),
     "backend",
+    "mails",
     "emails",
     "welcome.html",
   );
@@ -52,6 +56,7 @@ export const getPasswordchangedEmailTempale = (appUrl) => {
  const templatePath = path.join(
     process.cwd(),
     "backend",
+    "mails",
     "emails",
     "password_changed.html",
   );
