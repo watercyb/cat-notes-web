@@ -47,7 +47,7 @@ export const signup = async (req, res) => {
     });
 
     generateToken(req, res, user._id.toString());
-    generateRefreshToken(req, res, decoded.userId);
+    generateRefreshToken(req, res, user._id.toString());
 
     delete user.password;
 
