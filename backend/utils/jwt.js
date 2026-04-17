@@ -32,7 +32,7 @@ export const generateRefreshToken = (req, res, userId) => {
     res.cookie("refreshToken", refreshToken, refreshCookieOptions);
   }
 
-  redis.set(`refresh_token:${userId}`, refreshToken, { ex: 7 * 24 * 60 * 60 });
+  redis.set(`CatNotes_RefreshToken_${userId}`, refreshToken, { ex: 7 * 24 * 60 * 60 });
 
   return refreshToken;
 };
