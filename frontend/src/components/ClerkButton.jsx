@@ -8,7 +8,13 @@ const ClerkButton = () => {
   return (
     <div className="flex items-center gap-4">
       <SignedOut />
-      <UserButton />
+      <UserButton
+        appearance={{
+          elements: {
+            avatarBox: "size-10 !size-10",
+          },
+        }}
+      />
     </div>
   );
 };
