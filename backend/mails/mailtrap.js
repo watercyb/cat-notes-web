@@ -19,7 +19,7 @@ const client = new MailtrapClient({
 });
 
 const sender = {
-  email: "notes@notes.bbjdev.com",
+  email: "notes@bbjdev.com",
   name: "Cat Notes",
 };
 
