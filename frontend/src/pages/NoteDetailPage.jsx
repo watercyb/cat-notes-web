@@ -41,6 +41,7 @@ const NoteDetailPage = () => {
       setVersion(note.version + 1);
       setIsEncrypted(note.isEncrypted);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, isEncrypted, navigate]);
 
   const handleDelete = async () => {
@@ -68,7 +69,7 @@ const NoteDetailPage = () => {
   };
 
   return (
-    <div>
+    <>
       <PasswordDialog
         open={showDialog}
         showConfirm={showConfirm}
@@ -89,6 +90,7 @@ const NoteDetailPage = () => {
           } else {
             if (password) {
               setPassword(password);
+
               if (
                 await updateNote(
                   id,
@@ -97,88 +99,258 @@ const NoteDetailPage = () => {
                   version,
                   isEncrypted,
                 )
-              )
+              ) {
                 navigate("/");
+              }
+
               setVersion(version + 1);
               toast.success("Password updated");
             } else {
               toast.error("Password cannot be empty");
             }
           }
+
           setShowDialog(false);
         }}
       />
 
-      <div className="min-w-sm bg-base-200">
-        <div className="container mx-auto px-4 py-8">
-          <div className="max-w-2xl mx-auto">
-            <div className="flex items-center justify-between mb-6">
-              <Link to="/" className="btn btn-ghost">
-                <ArrowLeftIcon className="h-5 w-5" />
+      <div
+        className="
+        min-w-xl
+        bg-linear-to-br
+        from-[#FFF7F2]
+        via-[#FFF9F5]
+        to-[#FCEFE5]
+        px-4
+        py-4
+      "
+      >
+        <div className="container mx-auto">
+          <div className="max-w-6xl mx-auto">
+            {/* Page actions */}
+            <div
+              className="
+              flex
+              items-center
+              justify-between
+              mb-3
+            "
+            >
+              <Link
+                to="/"
+                className="
+                inline-flex
+                items-center
+                gap-2
+                text-[#9A8378]
+                font-medium
+                hover:text-[#F08A3C]
+                transition
+              "
+              >
+                <ArrowLeftIcon className="size-5" />
                 Back to Notes
               </Link>
+
               <button
                 onClick={handleDelete}
-                className="btn btn-error btn-outline"
+                className="
+                inline-flex
+                items-center
+                gap-2
+                rounded-2xl
+                px-4
+                py-2
+                border
+                border-rose-200
+                bg-white/60
+                text-rose-500
+                hover:bg-rose-50
+                transition
+              "
               >
-                <Trash2Icon className="h-5 w-5" />
+                <Trash2Icon className="size-5" />
                 Delete Note
               </button>
             </div>
 
-            <div className="card bg-base-100">
-              <div className="card-body">
-                <div className="form-control mb-4">
-                  <label className="label">
-                    <span className="label-text">Title</span>
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="Note title"
-                    className="input input-bordered"
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
-                  />
-                </div>
+            {/* Editor */}
+            <div
+              className="
+              rounded-[30px]
+              border
+              border-white/50
+              bg-white/80
+              backdrop-blur-xl
+              shadow-2xl
+              shadow-orange-200/30
+              px-10
+              py-5
+            "
+            >
+              <div className="flex items-center justify-between mb-6">
+                <h1
+                  className="
+                  text-3xl
+                  font-black
+                  text-[#5B4A42]
+                "
+                >
+                  Note Detail 🐱
+                </h1>
 
-                <div className="form-control mb-4" hidden={!showContent}>
-                  <label className="label">
-                    <span className="label-text">Content</span>
+                {isEncrypted && (
+                  <span
+                    className="
+                    rounded-full
+                    px-4
+                    py-1
+                    bg-[#FFF1E6]
+                    border
+                    border-orange-100
+                    text-sm
+                    font-semibold
+                    text-[#F08A3C]
+                  "
+                  >
+                    🔒 Encrypted
+                  </span>
+                )}
+              </div>
+
+              {/* Title */}
+              <div className="mb-6">
+                <label
+                  className="
+                  block
+                  mb-2
+                  font-semibold
+                  text-[#8E766C]
+                "
+                >
+                  Title
+                </label>
+
+                <input
+                  type="text"
+                  placeholder="Note title"
+                  className="
+                  w-full
+                  rounded-2xl
+                  border
+                  border-[#E7D7CC]
+                  bg-white/70
+                  px-4
+                  py-3
+                  text-[#5B4A42]
+                  outline-none
+                  focus:border-[#F08A3C]
+                  focus:ring-2
+                  focus:ring-orange-200
+                "
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                />
+              </div>
+
+              {/* Content */}
+              {showContent && (
+                <div className="mb-8">
+                  <label
+                    className="
+                    block
+                    mb-2
+                    font-semibold
+                    text-[#8E766C]
+                  "
+                  >
+                    Content
                   </label>
+
                   <textarea
                     placeholder="Write your note here..."
-                    className="textarea textarea-bordered h-32"
+                    className="
+                        w-full
+                        min-h-64
+                        min-w-xl
+                        max-w-5xl
+                        resize
+                        rounded-2xl
+                        border
+                        border-[#E7D7CC]
+                        bg-white/70
+                        px-4
+                        py-3
+                        text-[#5B4A42]
+                        outline-none
+                        transition
+                        focus:border-[#F08A3C]
+                        focus:ring-2
+                        focus:ring-orange-200
+                    "
                     value={content}
                     onChange={(e) => setContent(e.target.value)}
                   />
                 </div>
+              )}
 
-                <div className="card-actions justify-end items-center">
-                  {isEncrypted ? (
-                    <label
-                      className="label cursor-pointer mr-auto"
-                      onClick={changePassword}
-                    >
-                      <span className="label-text ml-2">Update Password</span>
-                    </label>
-                  ) : (
-                    <></>
-                  )}
-
+              {/* Footer */}
+              <div
+                className="
+                flex
+                items-center
+                justify-between
+              "
+              >
+                {isEncrypted ? (
                   <button
-                    className="btn btn-primary"
-                    disabled={isUploading}
-                    onClick={handleSave}
+                    onClick={changePassword}
+                    className="
+                    rounded-2xl
+                    px-5
+                    py-3
+                    bg-[#FFF1E6]
+                    border
+                    border-orange-100
+                    text-[#F08A3C]
+                    font-semibold
+                    hover:bg-[#FCEFE5]
+                    transition
+                  "
                   >
-                    {isUploading ? "Saving..." : "Save Changes"}
+                    🔑 Update Password
                   </button>
-                </div>
+                ) : (
+                  <div />
+                )}
+
+                <button
+                  className="
+                  rounded-2xl
+                  px-8
+                  py-3
+                  font-semibold
+                  text-white
+                  bg-linear-to-r
+                  from-[#F5A247]
+                  to-[#EE8337]
+                  shadow-lg
+                  shadow-orange-300/40
+                  hover:scale-[1.02]
+                  transition-all
+                  disabled:opacity-60
+                "
+                  disabled={isUploading}
+                  onClick={handleSave}
+                >
+                  {isUploading ? "Saving..." : "Save Changes ✨"}
+                </button>
               </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 };
 export default NoteDetailPage;

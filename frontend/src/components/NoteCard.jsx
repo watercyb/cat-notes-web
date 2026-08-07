@@ -10,43 +10,100 @@ const NoteCard = ({ note }) => {
   return (
     <Link
       to={`/note/${note._id}`}
-      className="card bg-base-100 hover:shadow-lg transition-all duration-200 
-      border-t-4 border-solid border-[#00FF9D]"
+      className="
+      block
+      rounded-3xl
+      border
+      border-white/50
+      border-l-4
+      border-l-[#F5A247]
+      bg-white/75
+      backdrop-blur-xl
+      shadow-md
+      shadow-orange-100/40
+      p-6
+      transition-all
+      duration-200
+      hover:-translate-y-1
+      hover:shadow-xl
+      hover:shadow-orange-200/40
+    "
     >
-      <div className="card-body p-3 sm:p-4">
-        <h3 className="card-title text-base-content line-clamp-3">
-          {note.title}
-        </h3>
+      <div className="flex flex-col gap-4">
+        {/* Header */}
+        <div className="flex items-start justify-between gap-3">
+          <h2
+            className="
+            text-xl
+            font-black
+            text-[#5B4A42]
+            line-clamp-2
+          "
+          >
+            {note.title}
+          </h2>
+
+          <button
+            className="
+            rounded-xl
+            p-2
+            text-[#C98B82]
+            hover:bg-rose-50
+            hover:text-rose-500
+            transition
+          "
+            onClick={(e) => {
+              e.preventDefault();
+
+              if (!window.confirm("Are you sure you want to delete this note?"))
+                return;
+
+              deleteNote(note._id);
+            }}
+          >
+            <Trash2Icon className="size-4" />
+          </button>
+        </div>
+
+        {/* Content */}
         {note.isEncrypted ? (
-          <div className="flex flex-col items-center justify-center pt-2">
-            <FiLock className="text-gray-400 w-5 h-5" />
-            <span className="text-gray-400 italic">Secure Note</span>
+          <div
+            className="
+            flex
+            items-center
+            gap-2
+            rounded-2xl
+            bg-[#FFF1E6]
+            border
+            border-orange-100
+            px-4
+            py-3
+            text-[#F08A3C]
+            font-semibold
+          "
+          >
+            🔒 Secure Note
           </div>
         ) : (
-          <p className="text-base-content/70 line-clamp-3">{note.content}</p>
+          <p
+            className="
+            text-[#8E766C]
+            line-clamp-3
+            leading-relaxed
+          "
+          >
+            {note.content}
+          </p>
         )}
-        <div className="card-actions justify-between items-center mt-4">
-          <span className="text-sm text-base-content/60">
-            {formatDate(new Date(note.createdAt))}
-          </span>
-          <div className="flex items-center gap-1">
-            <PenSquareIcon className="size-4 hidden sm:inline" />
-            <button
-              className="btn btn-ghost btn-xs text-error"
-              onClick={(e) => {
-                e.preventDefault();
 
-                if (
-                  !window.confirm("Are you sure you want to delete this note?")
-                )
-                  return;
-
-                deleteNote(note._id);
-              }}
-            >
-              <Trash2Icon className="size-4" />
-            </button>
-          </div>
+        {/* Footer */}
+        <div
+          className="
+          text-sm
+          text-[#B09A90]
+        "
+        >
+          {formatDate(new Date(note.createdAt))}
         </div>
       </div>
     </Link>

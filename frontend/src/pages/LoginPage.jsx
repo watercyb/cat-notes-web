@@ -5,12 +5,16 @@ import { motion as Motion } from "framer-motion";
 import Input from "../components/Input";
 import useUserStore from "../stores/useUserStore.js";
 import GoogleLogin from "../components/GoogleLogin.jsx";
+import { useEffect } from "react";
 
 const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const { login, isLoading, error, clearError } = useUserStore();
 
-  const { login, isLoading, error } = useUserStore();
+  useEffect(() => {
+    clearError();
+  }, [clearError]);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -22,12 +26,26 @@ const LoginPage = () => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className="max-w-md w-full bg-gray-800 bg-opacity-50 backdrop-filter backdrop-blur-xl rounded-2xl shadow-xl overflow-hidden"
+      className="
+      max-w-md
+      w-full
+      overflow-hidden
+      rounded-[30px]
+      border border-white/40
+      bg-white/70
+      backdrop-blur-xl
+      shadow-2xl
+      shadow-orange-200/30
+    "
     >
-      <div className="p-8">
-        <h2 className="text-3xl font-bold mb-6 text-center bg-linear-to-r from-green-400 to-emerald-500 text-transparent bg-clip-text">
+      <div className="px-10 pt-10 pb-3">
+        <h1 className="mb-2 text-center text-4xl font-black text-[#5B4A42]">
           Welcome Back
-        </h2>
+        </h1>
+
+        <p className="mb-8 text-center text-[#9A8378]">
+          Continue your reading journey 🐱
+        </p>
 
         <form onSubmit={handleLogin}>
           <Input
@@ -46,43 +64,68 @@ const LoginPage = () => {
             onChange={(e) => setPassword(e.target.value)}
           />
 
-          <div className="flex items-center mb-6">
+          <div className="mb-6 flex justify-end">
             <Link
               to="/forgot-password"
-              className="text-sm text-green-400 hover:underline"
+              className="font-medium text-[#F08A3C] transition hover:text-[#E76F1E]"
             >
               Forgot password?
             </Link>
           </div>
-          {error && <p className="text-red-500 font-semibold mb-2">{error}</p>}
+
+          {error && (
+            <div className="mb-5 rounded-xl border border-rose-200 bg-rose-50 p-3 text-center font-medium text-rose-500">
+              {error}
+            </div>
+          )}
 
           <Motion.button
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
-            className="w-full gap-3 py-3 px-4 bg-linear-to-r from-green-500 to-emerald-600 text-white font-bold rounded-lg shadow-lg hover:from-green-600 hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 focus:ring-offset-gray-900 transition duration-200"
             type="submit"
             disabled={isLoading}
+            className="
+            btn
+            w-full
+            h-14
+            border-0
+            rounded-2xl
+            text-lg
+            text-white
+            bg-linear-to-r
+            from-[#F5A247]
+            to-[#EE8337]
+            hover:from-[#EE943E]
+            hover:to-[#E66F25]
+            shadow-lg
+            shadow-orange-300/40
+            transition-all
+          "
           >
-            {isLoading ? (
-              <Loader className="w-6 h-6 animate-spin  mx-auto" />
-            ) : (
-              "Login"
-            )}
+            {isLoading ? <Loader className="h-6 w-6 animate-spin" /> : "Login"}
           </Motion.button>
 
-          <div className="flex items-center mt-6 mb-6">
-            <div className="grow h-px bg-gray-600" />
-            <span className="px-3 text-sm text-gray-400">OR</span>
-            <div className="grow h-px bg-gray-600" />
+          <div className="my-7 flex items-center">
+            <div className="h-px flex-1 bg-[#E7D7CC]" />
+
+            <span className="mx-4 text-sm font-semibold tracking-wider text-[#A58F84]">
+              OR
+            </span>
+
+            <div className="h-px flex-1 bg-[#E7D7CC]" />
           </div>
 
           <GoogleLogin />
         </form>
       </div>
-      <div className="px-8 py-4 bg-gray-900 bg-opacity-50 flex justify-center">
-        <p className="text-sm text-gray-400">
+
+      <div className="border-t border-white/40 bg-[#FFF7F2]/80 py-5 text-center">
+        <p className="text-[#8E766C]">
           Don't have an account?{" "}
-          <Link to="/signup" className="text-green-400 hover:underline">
+          <Link
+            to="/signup"
+            className="font-semibold text-[#F08A3C] hover:text-[#E76F1E]"
+          >
             Sign up
           </Link>
         </p>

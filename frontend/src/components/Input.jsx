@@ -1,17 +1,37 @@
 const Input = ({ icon, isMismatch, ...props }) => {
   const Icon = icon;
   return (
-    <div className="relative mb-6">
-      <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-        <Icon
-          className={`size-5  ${
-            isMismatch ? "text-red-500" : "text-green-500"
-          }`}
-        />
-      </div>
+    <div className="relative mb-5">
+      <Icon
+        className={`absolute left-3 top-1/2 -translate-y-1/2 z-10 size-5 transition-colors duration-200 ${
+          isMismatch ? "text-rose-400" : "text-[#D4A48A]"
+        }`}
+      />
+
       <input
         {...props}
-        className="w-full pl-10 pr-3 py-2 bg-gray-800 bg-opacity-50 rounded-lg border border-gray-700 focus:border-green-500 focus:ring-2 focus:ring-green-500 text-white placeholder-gray-400 transition duration-200"
+        className={`
+        w-full
+        rounded-2xl
+        border
+        px-4
+        py-3
+        pl-11
+        bg-white/80
+        backdrop-blur-sm
+        border-[#E8D8CC]
+        text-[#5B4A42]
+        placeholder:text-[#B6A298]
+        shadow-sm
+        transition-all
+        duration-200
+
+        focus:border-[#F5A247]
+        focus:ring-4
+        focus:ring-orange-200/50
+        focus:bg-white
+        focus:outline-none
+      `}
       />
     </div>
   );

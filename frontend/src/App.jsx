@@ -17,7 +17,6 @@ import AuthCallbackPage from "./pages/AuthCallbackPage";
 import { useState } from "react";
 import ChangePassword from "./pages/ChangePassword";
 import DeleteAccount from "./pages/DeleteAccount";
-import DeleteAccountDialog from "./pages/DeleteAccountDialog";
 
 const App = () => {
   const user = useUserStore((s) => s.user);
@@ -46,10 +45,7 @@ const App = () => {
   if (isCheckingAuth || isCleckloading) return <LoadingSpinner />;
 
   return (
-    <div
-      className="min-h-screen bg-linear-to-br
-    from-gray-900 via-green-900 to-emerald-900 flex items-center justify-center relative overflow-hidden"
-    >
+    <div className="min-h-screen bg-[url('/background.jpg')] bg-repeat bg-size-[300px_300px] flex items-center justify-center relative overflow-hidden">
       <>
         <RateLimitTopBar />
 

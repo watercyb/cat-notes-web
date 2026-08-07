@@ -4,12 +4,18 @@ import Input from "../components/Input";
 import { ArrowLeft, Loader, Mail } from "lucide-react";
 import { Link } from "react-router-dom";
 import useUserStore from "../stores/useUserStore";
+import { useEffect } from "react";
 
 const ForgotPasswordPage = () => {
   const [email, setEmail] = useState("");
   const [isSubmitted, setIsSubmitted] = useState(false);
 
-  const { isForgotPassword, error, forgotPassword } = useUserStore();
+  const { isForgotPassword, error, forgotPassword, clearError } =
+    useUserStore();
+
+  useEffect(() => {
+    clearError();
+  }, [clearError]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -21,68 +27,168 @@ const ForgotPasswordPage = () => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className="max-w-md w-full bg-gray-800 bg-opacity-50 backdrop-filter backdrop-blur-xl rounded-2xl shadow-xl overflow-hidden"
+      className="
+      max-w-md
+      w-full
+      overflow-hidden
+      rounded-[30px]
+      border
+      border-white/40
+      bg-white/70
+      backdrop-blur-xl
+      shadow-2xl
+      shadow-orange-200/30
+    "
     >
-      <div className="p-8">
-        <h2 className="text-3xl font-bold mb-6 text-center bg-linear-to-r from-green-400 to-emerald-500 text-transparent bg-clip-text">
-          Forgot Password
-        </h2>
+      <div className="p-10">
+        <h1
+          className="
+          mb-2
+          text-center
+          text-4xl
+          font-black
+          text-[#5B4A42]
+        "
+        >
+          Forgot Password 🐱
+        </h1>
 
         {!isSubmitted ? (
-          <form onSubmit={handleSubmit}>
-            <p className="text-gray-300 mb-6 text-center">
+          <>
+            <p
+              className="
+              mb-6
+              text-center
+              text-[#9A8378]
+            "
+            >
               Enter your email address and we'll send you a link to reset your
               password.
             </p>
-            <Input
-              icon={Mail}
-              type="email"
-              placeholder="Email Address"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-            {error && (
-              <p className="text-red-500 font-semibold mb-2">{error}</p>
-            )}
 
-            <Motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              className="w-full py-3 px-4 bg-linear-to-r from-green-500 to-emerald-600 text-white font-bold rounded-lg shadow-lg hover:from-green-600 hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 focus:ring-offset-gray-900 transition duration-200"
-              type="submit"
-            >
-              {isForgotPassword ? (
-                <Loader className="size-6 animate-spin mx-auto" />
-              ) : (
-                "Send Reset Link"
+            <form onSubmit={handleSubmit}>
+              <Input
+                icon={Mail}
+                type="email"
+                placeholder="Email Address"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+
+              {error && (
+                <div
+                  className="
+                  mt-3
+                  rounded-xl
+                  border
+                  border-rose-200
+                  bg-rose-50
+                  p-3
+                  text-center
+                  font-medium
+                  text-rose-500
+                "
+                >
+                  {error}
+                </div>
               )}
-            </Motion.button>
-          </form>
+
+              <Motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                className="
+                mt-2
+                h-14
+                w-full
+                rounded-2xl
+                text-lg
+                font-semibold
+                text-white
+                bg-linear-to-r
+                from-[#F5A247]
+                to-[#EE8337]
+                shadow-lg
+                shadow-orange-300/40
+                transition-all
+                hover:from-[#EE943E]
+                hover:to-[#E66F25]
+                disabled:opacity-60
+              "
+                type="submit"
+                disabled={isForgotPassword}
+              >
+                {isForgotPassword ? (
+                  <Loader className="size-6 animate-spin mx-auto" />
+                ) : (
+                  "Send Reset Link ✨"
+                )}
+              </Motion.button>
+            </form>
+          </>
         ) : (
           <div className="text-center">
             <Motion.div
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
-              transition={{ type: "spring", stiffness: 500, damping: 30 }}
-              className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4"
+              transition={{
+                type: "spring",
+                stiffness: 500,
+                damping: 30,
+              }}
+              className="
+              mx-auto
+              mb-5
+              flex
+              h-16
+              w-16
+              items-center
+              justify-center
+              rounded-full
+              bg-[#F5A247]
+              shadow-lg
+              shadow-orange-200/50
+            "
             >
               <Mail className="h-8 w-8 text-white" />
             </Motion.div>
-            <p className="text-gray-300 mb-6">
-              If an account exists for {email}, you will receive a password
-              reset link shortly.
+
+            <p
+              className="
+              text-[#8E766C]
+              leading-relaxed
+            "
+            >
+              If an account exists for{" "}
+              <span className="font-semibold text-[#5B4A42]">{email}</span>, you
+              will receive a password reset link shortly.
             </p>
           </div>
         )}
       </div>
 
-      <div className="px-8 py-4 bg-gray-900 bg-opacity-50 flex justify-center">
+      <div
+        className="
+        border-t
+        border-white/40
+        bg-[#FFF7F2]/80
+        py-5
+        text-center
+      "
+      >
         <Link
-          to={"/login"}
-          className="text-sm text-green-400 hover:underline flex items-center"
+          to="/login"
+          className="
+          inline-flex
+          items-center
+          gap-2
+          font-semibold
+          text-[#F08A3C]
+          hover:text-[#E76F1E]
+        "
         >
-          <ArrowLeft className="h-4 w-4 mr-2" /> Back to Login
+          <ArrowLeft className="h-4 w-4" />
+          Back to Login
         </Link>
       </div>
     </Motion.div>

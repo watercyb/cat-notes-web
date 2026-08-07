@@ -27,45 +27,144 @@ const UserButton = () => {
   if (!user.email?.includes("@")) return null;
 
   return (
-    <div ref={ref} className="relative pointer-coarse:">
+    <div className="relative">
       {/* Avatar button */}
       <button
         onClick={() => setOpen((v) => !v)}
-        className={`w-10 h-10 rounded-full flex items-center justify-center text-white font-bold cursor-pointer overflow-hidden focus:outline-none transition-transform duration-150 ${bgColor}`}
+        className={`
+        w-10
+        h-10
+        rounded-full
+        flex
+        items-center
+        justify-center
+        text-white
+        font-black
+        cursor-pointer
+        overflow-hidden
+        shadow-md
+        shadow-orange-200/40
+        transition-transform
+        duration-150
+        hover:scale-105
+        focus:outline-none
+        ${bgColor}
+      `}
       >
-        <span>{initial}</span>
+        {initial}
       </button>
 
       {/* Dropdown */}
       {open && (
-        <div className="absolute right-0 mt-2 w-48 bg-base-100 shadow-lg rounded-lg z-50">
-          <div className="px-4 py-3 border-b border-base-200">
-            <div className="font-semibold">{user.name}</div>
+        <div
+          className="
+          absolute
+          right-0
+          mt-3
+          w-56
+          overflow-hidden
+          rounded-3xl
+          border
+          border-white/50
+          bg-white
+          backdrop-blur-xl
+          shadow-2xl
+          shadow-orange-200/30
+          z-50
+        "
+        >
+          {/* User info */}
+          <div
+            className="
+            px-5
+            py-4
+            border-b
+            border-[#E7D7CC]
+          "
+          >
+            <div
+              className="
+              font-black
+              text-[#5B4A42]
+            "
+            >
+              {user.name}
+            </div>
+
             {user.email && (
-              <div className="text-sm text-base-content/70">{user.email}</div>
+              <div
+                className="
+                mt-1
+                text-sm
+                text-[#9A8378]
+                truncate
+              "
+              >
+                {user.email}
+              </div>
             )}
           </div>
 
-          <ul className="menu menu-compact p-2">
-            <li>
-              <ChangeUsernameDialog />
-            </li>
-            <li>
-              <button
-                className=""
-                onClick={() => {
-                  navigate("/change-password");
-                }}
-              >
-                Change Password
-              </button>
-            </li>
-            <li>
-              <button className="text-error" onClick={logout}>
-                Sign Out
-              </button>
-            </li>
-          </ul>
+          {/* Menu */}
+          <div className="p-2 space-y-1">
+            <ChangeUsernameDialog />
+
+            <button
+              className="
+              w-full
+              rounded-xl
+              px-4
+              py-2
+              text-left
+              font-medium
+              text-[#8E766C]
+              hover:bg-[#FFF1E6]
+              hover:text-[#F08A3C]
+              transition
+            "
+              onClick={() => {
+                navigate("/change-password");
+              }}
+            >
+              Change Password
+            </button>
+
+            <button
+              className="
+              w-full
+              rounded-xl
+              px-4
+              py-2
+              text-left
+              font-medium
+              text-rose-400
+              hover:bg-rose-50
+              transition
+            "
+              onClick={() => {
+                navigate("/delete");
+              }}
+            >
+              Delete Account
+            </button>
+
+            <button
+              className="
+              w-full
+              rounded-xl
+              px-4
+              py-2
+              text-left
+              font-medium
+              text-rose-400
+              hover:bg-rose-50
+              transition
+            "
+              onClick={logout}
+            >
+              Sign Out
+            </button>
+          </div>
         </div>
       )}
     </div>

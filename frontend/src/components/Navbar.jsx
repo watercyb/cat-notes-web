@@ -8,17 +8,62 @@ const Navbar = () => {
   const { isSignedIn } = useAuth();
 
   return (
-    <header className="bg-base-300 border-b border-base-content/10">
-      <div className="mx-auto max-w-6xl p-4">
+    <header
+      className="
+      sticky
+      top-0
+      z-50
+      border-b
+      border-white/40
+      bg-[#FCEFE5]/85
+      backdrop-blur-xl
+      shadow-sm
+      shadow-orange-200/30
+    "
+    >
+      <div className="mx-auto max-w-6xl px-4 py-4">
         <div className="flex items-center justify-between">
-          <h1 className="text-3xl font-bold text-primary font-mono tracking-tight">
+          {/* Logo */}
+          <Link
+            to="/"
+            className="
+            text-3xl
+            font-black
+            tracking-tight
+            text-[#5B4A42]
+            hover:text-[#F08A3C]
+            transition-colors
+          "
+          >
             Cat Notes
-          </h1>
+          </Link>
+
+          {/* Actions */}
           <div className="flex items-center gap-4">
-            <Link to={"/create"} className="btn btn-primary">
+            <Link
+              to="/create"
+              className="
+              btn
+              h-12
+              rounded-2xl
+              border-0
+              px-5
+              text-white
+              bg-linear-to-r
+              from-[#F5A247]
+              to-[#EE8337]
+              shadow-lg
+              shadow-orange-300/40
+              transition-all
+              hover:from-[#EE943E]
+              hover:to-[#E66F25]
+              hover:scale-[1.02]
+            "
+            >
               <PlusIcon className="size-5" />
               <span className="hidden sm:inline">New Note</span>
             </Link>
+
             {!isSignedIn ? <UserButton /> : <ClerkButton />}
           </div>
         </div>

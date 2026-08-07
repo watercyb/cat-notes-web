@@ -115,7 +115,7 @@ const useUserStore = create((set) => ({
 
   forgotPassword: async (email) => {
     try {
-      set({ isLoading: true, error: null, isRateLimited: false });
+      set({ isForgotPassword: true, error: null, isRateLimited: false });
       await axiosInstance.post("/auth/forgot-password", { email });
       return true;
     } catch (error) {
@@ -127,7 +127,7 @@ const useUserStore = create((set) => ({
       }
       return false;
     } finally {
-      set({ isLoading: false });
+      set({ isForgotPassword: false });
     }
   },
 
@@ -244,6 +244,10 @@ const useUserStore = create((set) => ({
       }
       set({ user: null });
     }
+  },
+
+  clearError: () => {
+    set({ error: null });
   },
 }));
 

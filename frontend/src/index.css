@@ -1,6 +1,15 @@
 @import "tailwindcss";
 @plugin "daisyui";
 @plugin "daisyui" {
-  themes:
-    forest;
+  themes: forest;
+}
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 1000px rgba(255, 255, 255, 0.7) inset !important;
+  -webkit-text-fill-color: #5b4a42 !important;
+  caret-color: #5b4a42;
+  transition: background-color 9999s ease-in-out 0s;
 }
