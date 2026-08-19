@@ -1,6 +1,6 @@
 import { updateToS3 } from "../AWS/s3.js";
 import { getMailCount } from "../mails/mailtrap.js";
-import Note from "../models/note.model.js";
+import Note from "../models/note_model.js";
 import User from "../models/user_model.js";
 
 export const analytics = async (req, res) => {

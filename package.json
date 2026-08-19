@@ -10,7 +10,9 @@
     "dev": "concurrently \"npm run backend\" \"npm run frontend\"",
     "start": "cross-env NODE_ENV=production node backend/server.js",
     "build_frontend": "npm run build --prefix frontend",
-    "build_all": "npm install && npm install --prefix frontend && npm run build --prefix frontend"
+    "build_all": "npm install && npm install --prefix frontend && npm run build --prefix frontend",
+    "test": "vitest",
+    "test:run": "vitest run"
   },
   "keywords": [],
   "author": "",
@@ -32,5 +34,8 @@
     "mongoose": "^9.1.5",
     "node-cron": "^4.2.1",
     "nodemon": "^3.1.11"
+  },
+  "devDependencies": {
+    "vitest": "^4.1.11"
   }
 }

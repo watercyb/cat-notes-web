@@ -1,6 +1,5 @@
 import dotenv from "dotenv";
 import mongoose from "mongoose";
-import Note from "../models/note.model.js";
 
 dotenv.config();
 

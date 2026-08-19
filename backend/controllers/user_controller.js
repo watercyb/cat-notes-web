@@ -254,7 +254,7 @@ export const resendEmailVerification = async (req, res) => {
         .status(403)
         .json({ success: false, message: "User not found" });
     if (user.isVerified)
-      res
+      return res
         .status(403)
         .json({ success: false, message: "Email already verified" });
 
@@ -265,7 +265,7 @@ export const resendEmailVerification = async (req, res) => {
     user.verificationToken = verificationToken;
     user.verificationTokenExpiresAt = Date.now() + 24 * 60 * 60 * 1000;
 
-    user.save();
+    await user.save();
 
     await sendVerificationEmail(user.email, verificationToken);
 
