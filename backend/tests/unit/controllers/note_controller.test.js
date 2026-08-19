@@ -31,6 +31,7 @@ describe("note_controller", () => {
   let req;
   let res;
 
+  let consoleLogSpy;
   let consoleErrorSpy;
   
   beforeEach(() => {
@@ -49,10 +50,12 @@ describe("note_controller", () => {
     };
 
     vi.clearAllMocks();
-    consoleErrorSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    consoleLogSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
   });
 
   afterEach(() => {
+    consoleLogSpy.mockRestore();
     consoleErrorSpy.mockRestore();
   });
 

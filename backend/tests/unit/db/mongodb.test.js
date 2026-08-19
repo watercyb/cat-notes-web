@@ -8,19 +8,28 @@ vi.mock("mongoose", () => ({
   },
 }));
 
+vi.mock("dotenv", () => ({
+  default: {
+    config: vi.fn(),
+  },
+}));
+
 describe("connectDB", () => {
   const originalExit = process.exit;
 
+  let consoleLogSpy;
   let consoleErrorSpy;
 
   beforeEach(() => {
     vi.clearAllMocks();
     process.exit = vi.fn();
-    consoleErrorSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    consoleLogSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
   });
 
   afterEach(() => {
     process.exit = originalExit;
+    consoleLogSpy.mockRestore();
     consoleErrorSpy.mockRestore();
   });
 

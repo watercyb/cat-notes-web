@@ -34,14 +34,17 @@ import {
 } from "../../../redis.js";
 
 describe("redis", () => {
+  let consoleLogSpy;
   let consoleErrorSpy;
 
   beforeEach(() => {
     vi.clearAllMocks();
-    consoleErrorSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    consoleLogSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
   });
 
   afterEach(() => {
+    consoleLogSpy.mockRestore();
     consoleErrorSpy.mockRestore();
   });
 

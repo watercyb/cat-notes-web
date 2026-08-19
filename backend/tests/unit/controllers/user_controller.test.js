@@ -124,6 +124,7 @@ const mockQueryWithPopulate = (value) => ({
 // ---------------------------------------------------------
 
 describe("user_controller", () => {
+  let consoleLogSpy;
   let consoleErrorSpy;
   
   beforeEach(() => {
@@ -135,10 +136,12 @@ describe("user_controller", () => {
     // Keep Math.random deterministic so signup/resend token
     // is predictable.
     vi.spyOn(Math, "random").mockReturnValue(0.5);
-    consoleErrorSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    consoleLogSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
   });
 
   afterEach(() => {
+    consoleLogSpy.mockRestore();
     consoleErrorSpy.mockRestore();
   });
   // =======================================================

@@ -64,7 +64,7 @@ export const signup = async (req, res) => {
       },
     });
   } catch (error) {
-    console.log("Error in signup: ", error.message);
+    console.error("Error in signup: ", error.message);
     res.status(500).json({ success: false, message: "Server internal error" });
   }
 };
@@ -101,7 +101,7 @@ export const login = async (req, res) => {
       },
     });
   } catch (error) {
-    console.log("Error in login: ", error.message);
+    console.error("Error in login: ", error.message);
     res.status(500).json({ success: false, message: "Server internal error" });
   }
 };
@@ -115,7 +115,7 @@ export const logout = async (req, res) => {
     res.clearCookie("refreshToken", refreshCookieOptions);
     res.status(200).json({ success: true, message: "Logged out successfully" });
   } catch (error) {
-    console.log("Error in logout: ", error.message);
+    console.error("Error in logout: ", error.message);
     res.status(500).json({ success: false, message: "Server internal error" });
   }
 };
@@ -139,7 +139,7 @@ export const checkAuth = async (req, res) => {
       },
     });
   } catch (error) {
-    console.log("Error in checkAuth ", error);
+    console.error("Error in checkAuth ", error);
     res.status(500).json({ success: false, message: "Server internal error" });
   }
 };
@@ -176,7 +176,7 @@ export const verifyEmail = async (req, res) => {
       },
     });
   } catch (error) {
-    console.log("Error in verifyEmail: ", error.message);
+    console.error("Error in verifyEmail: ", error.message);
     res.status(500).json({ success: false, message: error.message });
   }
 };
@@ -208,7 +208,7 @@ export const forgotPassword = async (req, res) => {
       message: "Password reset link sent to your email",
     });
   } catch (error) {
-    console.log("Error in forgotPassword: ", error.message);
+    console.error("Error in forgotPassword: ", error.message);
     res.status(500).json({ success: false, message: error.message });
   }
 };
@@ -241,7 +241,7 @@ export const resetPassword = async (req, res) => {
       .status(200)
       .json({ success: true, message: "Password reset successful" });
   } catch (error) {
-    console.log("Error in resetPassword: ", error.message);
+    console.error("Error in resetPassword: ", error.message);
     res.status(500).json({ success: false, message: error.message });
   }
 };
@@ -274,7 +274,7 @@ export const resendEmailVerification = async (req, res) => {
       message: "Verification email is sent",
     });
   } catch (error) {
-    console.log("Error in resendEmailVerification: ", error.message);
+    console.error("Error in resendEmailVerification: ", error.message);
     res.status(500).json({ success: false, message: "Server internal error" });
   }
 };
@@ -310,7 +310,7 @@ export const changePassword = async (req, res) => {
       message: "Password is changed",
     });
   } catch (error) {
-    console.log("Error in changePassword: ", error.message);
+    console.error("Error in changePassword: ", error.message);
     res.status(500).json({ success: false, message: "Server internal error" });
   }
 };
@@ -345,7 +345,7 @@ export const changeUsername = async (req, res) => {
       message: "Username is changed",
     });
   } catch (error) {
-    console.log("Error in changeUsername: ", error.message);
+    console.error("Error in changeUsername: ", error.message);
     res.status(500).json({ success: false, message: "Server internal error" });
   }
 };
@@ -381,7 +381,7 @@ export const refresh = async (req, res) => {
 
     res.json({ success: true, message: "Token refreshed successfully" });
   } catch (error) {
-    console.log("Error in refreshToken controller", error.message);
+    console.error("Error in refreshToken controller", error.message);
     res.status(500).json({ success: false, message: "Server internal error" });
   }
 };
@@ -398,7 +398,7 @@ export const deleteAccount = async (req, res) => {
     res.clearCookie("refreshToken", refreshCookieOptions);
     res.status(200).json({ success: true, message: "Logged out successfully" });
   } catch (error) {
-    console.log("Error in logout: ", error.message);
+    console.error("Error in logout: ", error.message);
     res.status(500).json({ success: false, message: "Server internal error" });
   }
 };

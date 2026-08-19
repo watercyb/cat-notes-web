@@ -16,7 +16,7 @@ export const getNotes = async (req, res) => {
       notes: user.notes,
     });
   } catch (error) {
-    console.log("Error in getNotes: ", error.message);
+    console.error("Error in getNotes: ", error.message);
     res.status(500).json({ success: false, message: "Server internal error" });
   }
 };
@@ -41,7 +41,7 @@ export const getNotesIdAndVersion = async (req, res) => {
       notes: list,
     });
   } catch (error) {
-    console.log("Error in getNotesIdAndVersion: ", error.message);
+    console.error("Error in getNotesIdAndVersion: ", error.message);
     res.status(500).json({ success: false, message: "Server internal error" });
   }
 };
@@ -81,7 +81,7 @@ export const createNote = async (req, res) => {
       note,
     });
   } catch (error) {
-    console.log("Error in createNote: ", error.message);
+    console.error("Error in createNote: ", error.message);
     res.status(500).json({ success: false, message: "Server internal error" });
   }
 };
@@ -115,7 +115,7 @@ export const deleteNode = async (req, res) => {
       success: true,
     });
   } catch (error) {
-    console.log("Error in deleteNode: ", error.message);
+    console.error("Error in deleteNode: ", error.message);
     res.status(500).json({ success: false, message: "Server internal error" });
   }
 };
@@ -187,7 +187,7 @@ export const updateNote = async (req, res) => {
       });
     }
   } catch (error) {
-    console.log("Error in deleteNode: ", error.message);
+    console.error("Error in deleteNode: ", error.message);
     res.status(500).json({ success: false, message: "Server internal error" });
   }
 };
@@ -216,7 +216,7 @@ export const getNode = async (req, res) => {
       note,
     });
   } catch (error) {
-    console.log("Error in getNode: ", error.message);
+    console.error("Error in getNode: ", error.message);
     res.status(500).json({ success: false, message: "Server internal error" });
   }
 };

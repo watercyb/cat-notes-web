@@ -19,7 +19,7 @@ export const rateCheck = async (req, res, next) => {
       res.status(429).json({ success: false, message: "Too many requests" });
     }
   } catch (error) {
-    console.log("Error in ratecheck: ", error);
+    console.error("Error in ratecheck: ", error);
     res.status(500).json({ success: false, message: "Server internal error" });
   }
 };
@@ -35,7 +35,7 @@ export const rateCheckSignup = async (req, res, next) => {
       res.status(429).json({ success: false, message: "Too many requests" });
     }
   } catch (error) {
-    console.log("Error in ratecheck: ", error);
+    console.error("Error in ratecheck: ", error);
     res.status(500).json({ success: false, message: "Server internal error" });
   }
 };
@@ -51,7 +51,7 @@ export const rateCheckResetPassword = async (req, res, next) => {
       res.status(429).json({ success: false, message: "Too many requests" });
     }
   } catch (error) {
-    console.log("Error in ratecheck: ", error);
+    console.error("Error in ratecheck: ", error);
     res.status(500).json({ success: false, message: "Server internal error" });
   }
 };
@@ -117,7 +117,7 @@ export const verifyToken = async (req, res, next) => {
       next();
     }
   } catch (error) {
-    console.log("Error in verifyToken ", error);
+    console.error("Error in verifyToken ", error);
     res.status(500).json({ success: false, message: "Server internal error" });
   }
 };

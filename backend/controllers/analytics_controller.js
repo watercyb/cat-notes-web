@@ -20,7 +20,7 @@ export const analytics = async (req, res) => {
       mails,
     });
   } catch (error) {
-    console.log("Error in analytics: ", error.message);
+    console.error("Error in analytics: ", error.message);
     res.status(500).json({ success: false, message: "Server internal error" });
   }
 };
@@ -34,6 +34,6 @@ export const exportdb = async (req, res) => {
     updateToS3("users.json", JSON.stringify(users, null, 2));
     console.log("Exported to users.json");
   } catch (error) {
-    console.log("Error in exportdb: ", error.message);
+    console.error("Error in exportdb: ", error.message);
   }
 };

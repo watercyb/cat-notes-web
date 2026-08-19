@@ -18,14 +18,17 @@ import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { updateToS3 } from "../../../AWS/s3.js";
 
 describe("updateToS3", () => {
+  let consoleLogSpy;
   let consoleErrorSpy;
 
   beforeEach(() => {
     vi.clearAllMocks();
-    consoleErrorSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    consoleLogSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
   });
 
   afterEach(() => {
+    consoleLogSpy.mockRestore();
     consoleErrorSpy.mockRestore();
   });
 

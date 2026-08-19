@@ -35,6 +35,7 @@ describe("analytics_controller", () => {
   let req;
   let res;
 
+  let consoleLogSpy;
   let consoleErrorSpy;
   
   beforeEach(() => {
@@ -51,10 +52,12 @@ describe("analytics_controller", () => {
     };
 
     process.env.ANALYTICS_TOKEN = "test-token";
-    consoleErrorSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    consoleLogSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+    consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
   });
 
   afterEach(() => {
+    consoleLogSpy.mockRestore();
     consoleErrorSpy.mockRestore();
   });
 
