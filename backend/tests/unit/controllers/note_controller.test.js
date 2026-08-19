@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, afterEach, describe, expect, it, vi } from "vitest";
 
 import {
   getNotes,
@@ -31,6 +31,8 @@ describe("note_controller", () => {
   let req;
   let res;
 
+  let consoleErrorSpy;
+  
   beforeEach(() => {
     req = {
       user: {
@@ -47,6 +49,11 @@ describe("note_controller", () => {
     };
 
     vi.clearAllMocks();
+    consoleErrorSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+  });
+
+  afterEach(() => {
+    consoleErrorSpy.mockRestore();
   });
 
   // ============================================================
@@ -419,9 +426,7 @@ describe("note_controller", () => {
     it("should return 500 when database operation fails", async () => {
       req.params.noteId = "note123";
 
-      User.findByIdAndUpdate.mockRejectedValue(
-        new Error("Database error"),
-      );
+      User.findByIdAndUpdate.mockRejectedValue(new Error("Database error"));
 
       await deleteNode(req, res);
 

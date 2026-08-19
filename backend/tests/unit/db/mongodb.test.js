@@ -11,13 +11,17 @@ vi.mock("mongoose", () => ({
 describe("connectDB", () => {
   const originalExit = process.exit;
 
+  let consoleErrorSpy;
+
   beforeEach(() => {
     vi.clearAllMocks();
     process.exit = vi.fn();
+    consoleErrorSpy = vi.spyOn(console, "log").mockImplementation(() => {});
   });
 
   afterEach(() => {
     process.exit = originalExit;
+    consoleErrorSpy.mockRestore();
   });
 
   it("should connect to MongoDB successfully", async () => {

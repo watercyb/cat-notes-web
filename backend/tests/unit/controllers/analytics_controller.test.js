@@ -1,40 +1,42 @@
-import { beforeEach, describe, expect, test, vi } from 'vitest';
+import { beforeEach, afterEach, describe, expect, test, vi } from "vitest";
 
-vi.mock('../../../AWS/s3.js', () => ({
+vi.mock("../../../AWS/s3.js", () => ({
   updateToS3: vi.fn(),
 }));
 
-vi.mock('../../../mails/mailtrap.js', () => ({
+vi.mock("../../../mails/mailtrap.js", () => ({
   getMailCount: vi.fn(),
 }));
 
-vi.mock('../../../models/note_model.js', () => ({
+vi.mock("../../../models/note_model.js", () => ({
   default: {
     countDocuments: vi.fn(),
     find: vi.fn(),
   },
 }));
 
-vi.mock('../../../models/user_model.js', () => ({
+vi.mock("../../../models/user_model.js", () => ({
   default: {
     countDocuments: vi.fn(),
     find: vi.fn(),
   },
 }));
 
-import { updateToS3 } from '../../../AWS/s3.js';
-import { getMailCount } from '../../../mails/mailtrap.js';
-import Note from '../../../models/note_model.js';
-import User from '../../../models/user_model.js';
+import { updateToS3 } from "../../../AWS/s3.js";
+import { getMailCount } from "../../../mails/mailtrap.js";
+import Note from "../../../models/note_model.js";
+import User from "../../../models/user_model.js";
 import {
   analytics,
   exportdb,
-} from '../../../controllers/analytics_controller.js';
+} from "../../../controllers/analytics_controller.js";
 
-describe('analytics_controller', () => {
+describe("analytics_controller", () => {
   let req;
   let res;
 
+  let consoleErrorSpy;
+  
   beforeEach(() => {
     vi.clearAllMocks();
 
@@ -48,12 +50,17 @@ describe('analytics_controller', () => {
       send: vi.fn(),
     };
 
-    process.env.ANALYTICS_TOKEN = 'test-token';
+    process.env.ANALYTICS_TOKEN = "test-token";
+    consoleErrorSpy = vi.spyOn(console, "log").mockImplementation(() => {});
   });
 
-  describe('analytics', () => {
-    test('should return success without analytics data when token is invalid', async () => {
-      req.query.token = 'wrong-token';
+  afterEach(() => {
+    consoleErrorSpy.mockRestore();
+  });
+
+  describe("analytics", () => {
+    test("should return success without analytics data when token is invalid", async () => {
+      req.query.token = "wrong-token";
 
       await analytics(req, res);
 
@@ -67,8 +74,8 @@ describe('analytics_controller', () => {
       expect(getMailCount).not.toHaveBeenCalled();
     });
 
-    test('should return analytics data when token is valid', async () => {
-      req.query.token = 'test-token';
+    test("should return analytics data when token is valid", async () => {
+      req.query.token = "test-token";
 
       User.countDocuments.mockResolvedValue(10);
       Note.countDocuments.mockResolvedValue(25);
@@ -89,11 +96,11 @@ describe('analytics_controller', () => {
       });
     });
 
-    test('should return 500 when an error occurs', async () => {
-      req.query.token = 'test-token';
+    test("should return 500 when an error occurs", async () => {
+      req.query.token = "test-token";
 
       User.countDocuments.mockRejectedValue(
-        new Error('Database connection failed'),
+        new Error("Database connection failed"),
       );
 
       await analytics(req, res);
@@ -101,34 +108,34 @@ describe('analytics_controller', () => {
       expect(res.status).toHaveBeenCalledWith(500);
       expect(res.json).toHaveBeenCalledWith({
         success: false,
-        message: 'Server internal error',
+        message: "Server internal error",
       });
     });
   });
 
-  describe('exportdb', () => {
-    test('should export notes and users to S3', async () => {
+  describe("exportdb", () => {
+    test("should export notes and users to S3", async () => {
       const notes = [
         {
-          _id: 'note1',
-          title: 'Note 1',
-          content: 'Hello',
+          _id: "note1",
+          title: "Note 1",
+          content: "Hello",
         },
         {
-          _id: 'note2',
-          title: 'Note 2',
-          content: 'World',
+          _id: "note2",
+          title: "Note 2",
+          content: "World",
         },
       ];
 
       const users = [
         {
-          _id: 'user1',
-          username: 'user1',
+          _id: "user1",
+          username: "user1",
         },
         {
-          _id: 'user2',
-          username: 'user2',
+          _id: "user2",
+          username: "user2",
         },
       ];
 
@@ -149,22 +156,20 @@ describe('analytics_controller', () => {
 
       expect(updateToS3).toHaveBeenNthCalledWith(
         1,
-        'notes.json',
+        "notes.json",
         JSON.stringify(notes, null, 2),
       );
 
       expect(updateToS3).toHaveBeenNthCalledWith(
         2,
-        'users.json',
+        "users.json",
         JSON.stringify(users, null, 2),
       );
     });
 
-    test('should stop exporting when fetching notes fails', async () => {
+    test("should stop exporting when fetching notes fails", async () => {
       Note.find.mockReturnValue({
-        lean: vi.fn().mockRejectedValue(
-          new Error('Failed to fetch notes'),
-        ),
+        lean: vi.fn().mockRejectedValue(new Error("Failed to fetch notes")),
       });
 
       await exportdb(req, res);
@@ -174,12 +179,12 @@ describe('analytics_controller', () => {
       expect(updateToS3).not.toHaveBeenCalled();
     });
 
-    test('should export notes but not users when fetching users fails', async () => {
+    test("should export notes but not users when fetching users fails", async () => {
       const notes = [
         {
-          _id: 'note1',
-          title: 'Note 1',
-          content: 'Hello',
+          _id: "note1",
+          title: "Note 1",
+          content: "Hello",
         },
       ];
 
@@ -188,9 +193,7 @@ describe('analytics_controller', () => {
       });
 
       User.find.mockReturnValue({
-        lean: vi.fn().mockRejectedValue(
-          new Error('Failed to fetch users'),
-        ),
+        lean: vi.fn().mockRejectedValue(new Error("Failed to fetch users")),
       });
 
       await exportdb(req, res);
@@ -201,7 +204,7 @@ describe('analytics_controller', () => {
       expect(updateToS3).toHaveBeenCalledTimes(1);
 
       expect(updateToS3).toHaveBeenCalledWith(
-        'notes.json',
+        "notes.json",
         JSON.stringify(notes, null, 2),
       );
     });

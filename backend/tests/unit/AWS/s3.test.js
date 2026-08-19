@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, afterEach, describe, expect, it, vi } from "vitest";
 
 const { sendMock } = vi.hoisted(() => ({
   sendMock: vi.fn(),
@@ -18,8 +18,15 @@ import { PutObjectCommand } from "@aws-sdk/client-s3";
 import { updateToS3 } from "../../../AWS/s3.js";
 
 describe("updateToS3", () => {
+  let consoleErrorSpy;
+
   beforeEach(() => {
     vi.clearAllMocks();
+    consoleErrorSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+  });
+
+  afterEach(() => {
+    consoleErrorSpy.mockRestore();
   });
 
   it("should upload data to S3 successfully", async () => {

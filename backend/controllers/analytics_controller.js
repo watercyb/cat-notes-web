@@ -33,7 +33,7 @@ export const exportdb = async (req, res) => {
     const users = await User.find().lean();
     updateToS3("users.json", JSON.stringify(users, null, 2));
     console.log("Exported to users.json");
-  } catch (err) {
-    console.error(err);
+  } catch (error) {
+    console.log("Error in exportdb: ", error.message);
   }
 };
