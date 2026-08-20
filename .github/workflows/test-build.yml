@@ -134,3 +134,4 @@ jobs:
           source: "frontend/dist/*"
           target: "~/web/test/frontend/dist"
           rm: true
+          strip_components: 2
