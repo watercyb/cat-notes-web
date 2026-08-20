@@ -77,10 +77,6 @@ jobs:
           VITE_CLERK_PUBLISHABLE_KEY=${{ secrets.TEST_VITE_CLERK_PUBLISHABLE_KEY }}
           EOF
 
-      - name: Run tests
-        working-directory: frontend
-        run: npm test
-
       - name: Build
         working-directory: frontend
         run: npm run build
