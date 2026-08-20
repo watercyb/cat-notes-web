@@ -144,6 +144,7 @@ jobs:
           target: "~/web/cat-notes-web/frontend/dist"
           rm: true
           strip_components: 2
+          
       - name: Install dependencies and restart
         uses: appleboy/ssh-action@v1
         with:
