@@ -16,10 +16,6 @@ jobs:
     name: Backend Test
     runs-on: ubuntu-latest
 
-    defaults:
-      run:
-        working-directory: backend
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -27,9 +23,9 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 24
-          cache: npm
-          cache-dependency-path: backend/package-lock.json
+            node-version: 24
+            cache: npm
+            cache-dependency-path: package-lock.json
 
       - name: Install dependencies
         run: npm ci
@@ -45,9 +41,9 @@ jobs:
           UPSTASH_REDIS_REST_URL=${{ secrets.TEST_UPSTASH_REDIS_REST_URL }}
           UPSTASH_REDIS_REST_TOKEN=${{ secrets.TEST_UPSTASH_REDIS_REST_TOKEN }}
           MAILTRAP_TOKEN=${{ secrets.TEST_MAILTRAP_TOKEN }}
-          CLERK_PUBLISHABLE_KEY=${{ secrets.TEST_CLERK_PUBLISHABLE_KEY}}
-          CLERK_SECRET_KEY=${{ secrets.TEST_CLERK_SECRET_KEY}}
-          ANALYTICS_TOKEN=${{ secrets.TEST_ANALYTICS_TOKEN}}
+          CLERK_PUBLISHABLE_KEY=${{ secrets.TEST_CLERK_PUBLISHABLE_KEY }}
+          CLERK_SECRET_KEY=${{ secrets.TEST_CLERK_SECRET_KEY }}
+          ANALYTICS_TOKEN=${{ secrets.TEST_ANALYTICS_TOKEN }}
           AWS_ACCESS_KEY_ID=${{ secrets.TEST_AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY=${{ secrets.TEST_AWS_SECRET_ACCESS_KEY }}
           EOF
@@ -58,10 +54,6 @@ jobs:
   frontend:
     name: Frontend Test & Build
     runs-on: ubuntu-latest
-
-    defaults:
-      run:
-        working-directory: frontend
 
     steps:
       - name: Checkout
@@ -75,16 +67,20 @@ jobs:
           cache-dependency-path: frontend/package-lock.json
 
       - name: Install dependencies
+        working-directory: frontend
         run: npm ci
 
       - name: Create environment file
+        working-directory: frontend
         run: |
           cat > .env.production << 'EOF'
           VITE_CLERK_PUBLISHABLE_KEY=${{ secrets.TEST_VITE_CLERK_PUBLISHABLE_KEY }}
           EOF
 
       - name: Run tests
+        working-directory: frontend
         run: npm test
 
       - name: Build
+        working-directory: frontend
         run: npm run build
