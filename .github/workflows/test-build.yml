@@ -102,7 +102,7 @@ jobs:
 
       - name: Install backend dependencies
         working-directory: backend
-        run: npm ci --omit=dev
+        run: npm ci
 
       - name: Build frontend
         working-directory: frontend
