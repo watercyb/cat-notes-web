@@ -4,9 +4,11 @@ const noteSchema = new mongoose.Schema(
   {
     title: {
       type: String,
+      required: false,
     },
     content: {
       type: String,
+      required: false,
     },
     version: {
       type: Number,
