@@ -115,14 +115,23 @@ jobs:
         working-directory: frontend
         run: npm run build
 
+      - name: Stop Cat Notes
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USERNAME }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            sudo systemctl stop cat-notes
+
       - name: Upload backend
         uses: appleboy/scp-action@v1
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USERNAME }}
           key: ${{ secrets.VPS_SSH_KEY }}
-          source: "*"
-          target: "~/web/test"
+          source: "backend/*,package.json,package-lock.json"
+          target: "~/web/cat-notes-web"
           rm: false
 
       - name: Upload frontend dist
@@ -132,6 +141,17 @@ jobs:
           username: ${{ secrets.VPS_USERNAME }}
           key: ${{ secrets.VPS_SSH_KEY }}
           source: "frontend/dist/*"
-          target: "~/web/test/frontend/dist"
+          target: "~/web/cat-notes-web/frontend/dist"
           rm: true
           strip_components: 2
+      - name: Install dependencies and restart
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USERNAME }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            cd /root/web/cat-notes-web
+            npm ci --omit=dev
+            sudo systemctl restart cat-notes
+            sudo systemctl status cat-notes --no-pager
