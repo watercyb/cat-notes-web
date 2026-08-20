@@ -121,8 +121,8 @@ jobs:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USERNAME }}
           key: ${{ secrets.VPS_SSH_KEY }}
-          source: "backend/*"
-          target: "~/web/test/backend"
+          source: "*"
+          target: "~/web/test"
           rm: false
 
       - name: Upload frontend dist
