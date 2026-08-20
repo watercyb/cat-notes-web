@@ -108,7 +108,7 @@ jobs:
         working-directory: frontend
         run: |
           cat > .env.production << 'EOF'
-          VITE_CLERK_PUBLISHABLE_KEY=${{ secrets.TEST_VITE_CLERK_PUBLISHABLE_KEY_TEST }}
+          VITE_CLERK_PUBLISHABLE_KEY=${{ secrets.TEST_VITE_CLERK_PUBLISHABLE_KEY }}
           EOF
 
       - name: Build frontend
