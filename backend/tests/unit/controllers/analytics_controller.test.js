@@ -31,13 +31,14 @@ import {
   exportdb,
 } from "../../../controllers/analytics_controller.js";
 
+
 describe("analytics_controller", () => {
   let req;
   let res;
 
   let consoleLogSpy;
   let consoleErrorSpy;
-  
+
   beforeEach(() => {
     vi.clearAllMocks();
 

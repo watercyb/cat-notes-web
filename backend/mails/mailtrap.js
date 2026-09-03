@@ -8,7 +8,7 @@ import {
 } from "./emailTemplates.js";
 import dotenv from "dotenv";
 
-dotenv.config();
+dotenv.config({ quiet: true });
 
 let mailCount = 0;
 

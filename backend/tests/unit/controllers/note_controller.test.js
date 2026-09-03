@@ -248,7 +248,6 @@ describe("note_controller", () => {
       expect(User.findByIdAndUpdate).toHaveBeenCalledWith(
         req.user._id,
         { $push: { notes: "note123" } },
-        { new: true },
       );
 
       expect(res.status).toHaveBeenCalledWith(201);
@@ -368,7 +367,6 @@ describe("note_controller", () => {
       expect(User.findByIdAndUpdate).toHaveBeenCalledWith(
         req.user._id,
         { $pull: { notes: "note123" } },
-        { new: true },
       );
 
       expect(Note.findByIdAndDelete).toHaveBeenCalledWith("note123");
@@ -636,7 +634,6 @@ describe("note_controller", () => {
       expect(User.findByIdAndUpdate).toHaveBeenCalledWith(
         req.user._id,
         { $push: { notes: "note456" } },
-        { new: true },
       );
 
       expect(res.status).toHaveBeenCalledWith(200);

@@ -1,60 +1,16 @@
-import express from "express";
+import app from "./app.js";
+import { setMaintenanceMode } from "./app.js";
 import { connectDB } from "./db/mongodb.js";
-import dotenv from "dotenv";
-import authRoutes from "./routes/auth_route.js";
-import cookieParser from "cookie-parser";
-import noteRoutes from "./routes/note_route.js";
-import { rateCheck } from "./middleware/middleware.js";
-import { clerkMiddleware } from "@clerk/express";
-import path from "path";
-import analytics from "./routes/analytics_route.js";
 import cron from "node-cron";
 import { cleanup } from "./utils/cleanup.js";
 import { exportdb } from "./controllers/analytics_controller.js";
 
-dotenv.config();
-
 const port = process.env.PORT;
-
-const app = express();
-const __dirname = path.resolve();
-
-let maintenanceMode = false;
-
-// Middleware to block requests during maintenance
-app.use((req, res, next) => {
-  if (maintenanceMode) {
-    return res
-      .status(503)
-      .json({ message: "Server under maintenance, try later." });
-  }
-  next();
-});
-
-app.use(clerkMiddleware());
-
-app.use(express.json());
-app.use(cookieParser());
-
-app.use("/api/auth", rateCheck, authRoutes);
-app.use("/api/note", rateCheck, noteRoutes);
-app.use("/api/analytics", rateCheck, analytics);
-
-if (process.env.NODE_ENV !== "development") {
-  app.use(express.static(path.join(__dirname, "./frontend/dist")));
-  app.get(new RegExp(".*"), (req, res) => {
-    res.sendFile(path.resolve(__dirname, "./frontend", "dist", "index.html"));
-  });
-}
-
-app.use((req, res) => {
-  res.status(404).json({ success: false, message: "Not Found" });
-});
 
 cron.schedule("0 3 * * *", async () => {
   // 3 AM every day
   console.log("Maintenance starting...");
-  maintenanceMode = true;
+  setMaintenanceMode(true);
 
   await new Promise((resolve) => setTimeout(resolve, 500));
 
@@ -64,7 +20,7 @@ cron.schedule("0 3 * * *", async () => {
     console.error("Cleanup error:", err);
   } finally {
     await exportdb();
-    maintenanceMode = false;
+    setMaintenanceMode(false);
     console.log("Maintenance ended.");
   }
 });

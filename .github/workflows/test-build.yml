@@ -36,6 +36,7 @@ jobs:
           NODE_ENV=development
           PORT=${{ secrets.TEST_PORT }}
           MONGO_URI=${{ secrets.TEST_MONGO_URI }}
+          MONGO_URI_TEST=${{ secrets.TEST_MONGO_URI_TEST }}
           JWT_SECRET=${{ secrets.TEST_JWT_SECRET }}
           REFRESH_TOKEN_SECRET=${{ secrets.TEST_REFRESH_TOKEN_SECRET }}
           UPSTASH_REDIS_REST_URL=${{ secrets.TEST_UPSTASH_REDIS_REST_URL }}

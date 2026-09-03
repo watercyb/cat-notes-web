@@ -73,7 +73,6 @@ export const createNote = async (req, res) => {
     await User.findByIdAndUpdate(
       userId,
       { $push: { notes: note._id } },
-      { new: true },
     );
 
     res.status(201).json({
@@ -106,7 +105,6 @@ export const deleteNode = async (req, res) => {
     await User.findByIdAndUpdate(
       user._id,
       { $pull: { notes: noteId } },
-      { new: true },
     );
 
     await Note.findByIdAndDelete(noteId);
@@ -177,7 +175,6 @@ export const updateNote = async (req, res) => {
       await User.findByIdAndUpdate(
         user._id,
         { $push: { notes: newNote._id } },
-        { new: true },
       );
 
       res.status(200).json({
