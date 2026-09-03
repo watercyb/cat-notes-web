@@ -8,20 +8,15 @@ import {
   beforeEach,
   afterEach,
 } from "vitest";
+import request from "supertest";
 import mongoose from "mongoose";
+import jwt from "jsonwebtoken";
+import dotenv from "dotenv";
+
 import Note from "../../models/note_model.js";
 import User from "../../models/user_model.js";
-
-import {
-  getNotes,
-  getNotesIdAndVersion,
-  createNote,
-  deleteNode,
-  updateNote,
-  getNode,
-} from "../../controllers/note_controller.js";
-
-import dotenv from "dotenv";
+import app from "../../app.js";
+import { setToken } from "../../utils/tokens.js";
 
 dotenv.config({ quiet: true });
 
@@ -29,28 +24,24 @@ vi.mock("node-cron", () => ({
   schedule: vi.fn(),
 }));
 
-describe("Note Controller Integration Tests", () => {
+vi.mock("../../db/redis.js", () => ({
+  redis: {
+    del: vi.fn(),
+    get: vi.fn(),
+    set: vi.fn(),
+  },
+
+  checkLimit: vi.fn().mockResolvedValue({
+    success: true,
+  }),
+}));
+
+describe("Note Routes Integration Tests", () => {
   let user;
+  let token;
 
   let consoleLogSpy;
   let consoleErrorSpy;
-
-  // Simple mock response object
-  const createRes = () => {
-    const res = {};
-
-    res.status = (statusCode) => {
-      res.statusCode = statusCode;
-      return res;
-    };
-
-    res.json = (data) => {
-      res.body = data;
-      return res;
-    };
-
-    return res;
-  };
 
   beforeAll(async () => {
     await mongoose.connect(process.env.MONGO_URI_TEST);
@@ -66,8 +57,28 @@ describe("Note Controller Integration Tests", () => {
       password: "11111111",
     });
 
+    /*
+     * Change JWT_SECRET to whatever variable your verifyToken
+     * middleware actually uses.
+     */
+    token = jwt.sign(
+      {
+        userId: user._id.toString(),
+      },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: "1h",
+      },
+    );
+    setToken(user._id, token);
+
     consoleLogSpy = vi.spyOn(console, "log").mockImplementation(() => {});
     consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+  });
+
+  afterEach(() => {
+    consoleLogSpy.mockRestore();
+    consoleErrorSpy.mockRestore();
   });
 
   afterAll(async () => {
@@ -76,16 +87,11 @@ describe("Note Controller Integration Tests", () => {
     await mongoose.connection.close();
   });
 
-  afterEach(() => {
-    consoleLogSpy.mockRestore();
-    consoleErrorSpy.mockRestore();
-  });
-
   // -------------------------------------------------------
-  // getNotes
+  // GET /api/note/getNotes
   // -------------------------------------------------------
 
-  describe("getNotes", () => {
+  describe("GET /api/note/getNotes", () => {
     it("should return all notes belonging to the user", async () => {
       const note1 = await Note.create({
         title: "Note 1",
@@ -104,35 +110,23 @@ describe("Note Controller Integration Tests", () => {
       user.notes.push(note1._id, note2._id);
       await user.save();
 
-      const req = {
-        user: {
-          _id: user._id,
-        },
-      };
+      const response = await request(app)
+        .get("/api/note/getNotes")
+        .set("Cookie", [`token=${token}`]);
 
-      const res = createRes();
+      expect(response.status).toBe(200);
+      expect(response.body.success).toBe(true);
+      expect(response.body.notes).toHaveLength(2);
 
-      await getNotes(req, res);
-
-      expect(res.statusCode).toBe(200);
-      expect(res.body.success).toBe(true);
-      expect(res.body.notes).toHaveLength(2);
-
-      expect(res.body.notes[0]._id.toString()).toBe(note1._id.toString());
-      expect(res.body.notes[1]._id.toString()).toBe(note2._id.toString());
+      expect(response.body.notes[0]._id).toBe(note1._id.toString());
+      expect(response.body.notes[1]._id).toBe(note2._id.toString());
     });
 
-    it("should return 401 when user id is missing", async () => {
-      const req = {
-        user: {},
-      };
+    it("should return 401 when authentication is missing", async () => {
+      const response = await request(app).get("/api/note/getNotes");
 
-      const res = createRes();
-
-      await getNotes(req, res);
-
-      expect(res.statusCode).toBe(401);
-      expect(res.body).toEqual({
+      expect(response.status).toBe(401);
+      expect(response.body).toEqual({
         success: false,
         message: "Invalid credentials",
       });
@@ -140,10 +134,10 @@ describe("Note Controller Integration Tests", () => {
   });
 
   // -------------------------------------------------------
-  // getNotesIdAndVersion
+  // GET /api/note/getNotesIdAndVersion
   // -------------------------------------------------------
 
-  describe("getNotesIdAndVersion", () => {
+  describe("GET /api/note/getNotesIdAndVersion", () => {
     it("should return note ids and versions", async () => {
       const note1 = await Note.create({
         title: "Note 1",
@@ -162,39 +156,27 @@ describe("Note Controller Integration Tests", () => {
       user.notes.push(note1._id, note2._id);
       await user.save();
 
-      const req = {
-        user: {
-          _id: user._id,
-        },
-      };
+      const response = await request(app)
+        .get("/api/note/getNotesIdAndVersion")
+        .set("Cookie", [`token=${token}`]);
 
-      const res = createRes();
+      expect(response.status).toBe(200);
+      expect(response.body.success).toBe(true);
 
-      await getNotesIdAndVersion(req, res);
+      expect(response.body.notes).toHaveLength(2);
 
-      expect(res.statusCode).toBe(200);
-      expect(res.body.success).toBe(true);
+      expect(response.body.notes[0]._id).toBe(note1._id.toString());
+      expect(response.body.notes[0].version).toBe(3);
 
-      expect(res.body.notes).toHaveLength(2);
-
-      expect(res.body.notes[0]._id.toString()).toBe(note1._id.toString());
-      expect(res.body.notes[0].version).toBe(3);
-
-      expect(res.body.notes[1]._id.toString()).toBe(note2._id.toString());
-      expect(res.body.notes[1].version).toBe(7);
+      expect(response.body.notes[1]._id).toBe(note2._id.toString());
+      expect(response.body.notes[1].version).toBe(7);
     });
 
-    it("should return 401 when user id is missing", async () => {
-      const req = {
-        user: {},
-      };
+    it("should return 401 when authentication is missing", async () => {
+      const response = await request(app).get("/api/note/getNotesIdAndVersion");
 
-      const res = createRes();
-
-      await getNotesIdAndVersion(req, res);
-
-      expect(res.statusCode).toBe(401);
-      expect(res.body).toEqual({
+      expect(response.status).toBe(401);
+      expect(response.body).toEqual({
         success: false,
         message: "Invalid credentials",
       });
@@ -202,42 +184,34 @@ describe("Note Controller Integration Tests", () => {
   });
 
   // -------------------------------------------------------
-  // createNote
+  // POST /api/note/create
   // -------------------------------------------------------
 
-  describe("createNote", () => {
+  describe("POST /api/note/create", () => {
     it("should create a note and add it to the user's notes", async () => {
-      const req = {
-        user: {
-          _id: user._id,
-        },
-        body: {
+      const response = await request(app)
+        .post("/api/note/create")
+        .set("Cookie", [`token=${token}`])
+        .send({
           title: "Test Note",
           content: "Hello World",
           version: 1,
           isEncrypted: false,
-        },
-      };
+        });
 
-      const res = createRes();
+      expect(response.status).toBe(201);
+      expect(response.body.success).toBe(true);
 
-      await createNote(req, res);
+      expect(response.body.note.title).toBe("Test Note");
+      expect(response.body.note.content).toBe("Hello World");
+      expect(response.body.note.version).toBe(1);
+      expect(response.body.note.isEncrypted).toBe(false);
 
-      expect(res.statusCode).toBe(201);
-      expect(res.body.success).toBe(true);
-
-      expect(res.body.note.title).toBe("Test Note");
-      expect(res.body.note.content).toBe("Hello World");
-      expect(res.body.note.version).toBe(1);
-      expect(res.body.note.isEncrypted).toBe(false);
-
-      // Verify note actually exists in DB
-      const savedNote = await Note.findById(res.body.note._id);
+      const savedNote = await Note.findById(response.body.note._id);
 
       expect(savedNote).not.toBeNull();
       expect(savedNote.title).toBe("Test Note");
 
-      // Verify user actually references the note
       const updatedUser = await User.findById(user._id);
 
       expect(updatedUser.notes).toHaveLength(1);
@@ -245,86 +219,61 @@ describe("Note Controller Integration Tests", () => {
     });
 
     it("should use empty strings when title and content are null", async () => {
-      const req = {
-        user: {
-          _id: user._id,
-        },
-        body: {
+      const response = await request(app)
+        .post("/api/note/create")
+        .set("Cookie", [`token=${token}`])
+        .send({
           title: null,
           content: null,
           version: 1,
           isEncrypted: false,
-        },
-      };
+        });
 
-      const res = createRes();
-
-      await createNote(req, res);
-
-      expect(res.statusCode).toBe(201);
-      expect(res.body.success).toBe(true);
-      expect(res.body.note.title).toBe("");
-      expect(res.body.note.content).toBe("");
+      expect(response.status).toBe(201);
+      expect(response.body.success).toBe(true);
+      expect(response.body.note.title).toBe("");
+      expect(response.body.note.content).toBe("");
     });
 
     it("should default isEncrypted to false", async () => {
-      const req = {
-        user: {
-          _id: user._id,
-        },
-        body: {
+      const response = await request(app)
+        .post("/api/note/create")
+        .set("Cookie", [`token=${token}`])
+        .send({
           title: "Test",
           content: "Content",
           version: 1,
-        },
-      };
+        });
 
-      const res = createRes();
-
-      await createNote(req, res);
-
-      expect(res.statusCode).toBe(201);
-      expect(res.body.note.isEncrypted).toBe(false);
+      expect(response.status).toBe(201);
+      expect(response.body.note.isEncrypted).toBe(false);
     });
 
     it("should return 422 when version is missing", async () => {
-      const req = {
-        user: {
-          _id: user._id,
-        },
-        body: {
+      const response = await request(app)
+        .post("/api/note/create")
+        .set("Cookie", [`token=${token}`])
+        .send({
           title: "Test",
           content: "Content",
-        },
-      };
+        });
 
-      const res = createRes();
-
-      await createNote(req, res);
-
-      expect(res.statusCode).toBe(422);
-      expect(res.body).toEqual({
+      expect(response.status).toBe(422);
+      expect(response.body).toEqual({
         success: false,
         message: "All fields are required",
       });
     });
 
-    it("should return 401 when user id is missing", async () => {
-      const req = {
-        user: {},
-        body: {
-          title: "Test",
-          content: "Content",
-          version: 1,
-        },
-      };
+    it("should return 401 when authentication is missing", async () => {
+      const response = await request(app).post("/api/note/create").send({
+        title: "Test",
+        content: "Content",
+        version: 1,
+      });
 
-      const res = createRes();
-
-      await createNote(req, res);
-
-      expect(res.statusCode).toBe(401);
-      expect(res.body).toEqual({
+      expect(response.status).toBe(401);
+      expect(response.body).toEqual({
         success: false,
         message: "Invalid credentials",
       });
@@ -332,10 +281,10 @@ describe("Note Controller Integration Tests", () => {
   });
 
   // -------------------------------------------------------
-  // deleteNode
+  // DELETE /api/note/:noteId
   // -------------------------------------------------------
 
-  describe("deleteNode", () => {
+  describe("DELETE /api/note/:noteId", () => {
     it("should delete the note and remove it from the user", async () => {
       const note = await Note.create({
         title: "Delete Me",
@@ -347,33 +296,25 @@ describe("Note Controller Integration Tests", () => {
       user.notes.push(note._id);
       await user.save();
 
-      const req = {
-        user: await User.findById(user._id),
-        params: {
-          noteId: note._id.toString(),
-        },
-      };
+      const response = await request(app)
+        .delete(`/api/note/${note._id}`)
+        .set("Cookie", [`token=${token}`]);
 
-      const res = createRes();
-
-      await deleteNode(req, res);
-
-      expect(res.statusCode).toBe(200);
-      expect(res.body).toEqual({
+      expect(response.status).toBe(200);
+      expect(response.body).toEqual({
         success: true,
       });
 
-      // Verify note was deleted
       const deletedNote = await Note.findById(note._id);
+
       expect(deletedNote).toBeNull();
 
-      // Verify note was removed from user
       const updatedUser = await User.findById(user._id);
 
       expect(updatedUser.notes).toHaveLength(0);
     });
 
-    it("should return success without deleting anything when note does not belong to user", async () => {
+    it("should return success when note does not belong to user", async () => {
       const note = await Note.create({
         title: "Other Note",
         content: "Content",
@@ -381,40 +322,27 @@ describe("Note Controller Integration Tests", () => {
         isEncrypted: false,
       });
 
-      const req = {
-        user: await User.findById(user._id),
-        params: {
-          noteId: note._id.toString(),
-        },
-      };
+      const response = await request(app)
+        .delete(`/api/note/${note._id}`)
+        .set("Cookie", [`token=${token}`]);
 
-      const res = createRes();
-
-      await deleteNode(req, res);
-
-      expect(res.statusCode).toBe(200);
-      expect(res.body).toEqual({
+      expect(response.status).toBe(200);
+      expect(response.body).toEqual({
         success: true,
       });
 
-      // Note should still exist
       const existingNote = await Note.findById(note._id);
+
       expect(existingNote).not.toBeNull();
     });
 
-    it("should return 401 when user is missing", async () => {
-      const req = {
-        params: {
-          noteId: new mongoose.Types.ObjectId().toString(),
-        },
-      };
+    it("should return 401 when authentication is missing", async () => {
+      const noteId = new mongoose.Types.ObjectId();
 
-      const res = createRes();
+      const response = await request(app).delete(`/api/note/${noteId}`);
 
-      await deleteNode(req, res);
-
-      expect(res.statusCode).toBe(401);
-      expect(res.body).toEqual({
+      expect(response.status).toBe(401);
+      expect(response.body).toEqual({
         success: false,
         message: "Invalid credentials",
       });
@@ -422,10 +350,10 @@ describe("Note Controller Integration Tests", () => {
   });
 
   // -------------------------------------------------------
-  // updateNote
+  // POST /api/note/update
   // -------------------------------------------------------
 
-  describe("updateNote", () => {
+  describe("POST /api/note/update", () => {
     it("should update the existing note when the new version is higher", async () => {
       const note = await Note.create({
         title: "Old Title",
@@ -437,29 +365,24 @@ describe("Note Controller Integration Tests", () => {
       user.notes.push(note._id);
       await user.save();
 
-      const req = {
-        user: await User.findById(user._id),
-        body: {
+      const response = await request(app)
+        .post("/api/note/update")
+        .set("Cookie", [`token=${token}`])
+        .send({
           noteId: note._id.toString(),
           title: "New Title",
           content: "New Content",
           version: 2,
           isEncrypted: false,
-        },
-      };
+        });
 
-      const res = createRes();
+      expect(response.status).toBe(200);
+      expect(response.body.success).toBe(true);
 
-      await updateNote(req, res);
+      expect(response.body.note.title).toBe("New Title");
+      expect(response.body.note.content).toBe("New Content");
+      expect(response.body.note.version).toBe(2);
 
-      expect(res.statusCode).toBe(200);
-      expect(res.body.success).toBe(true);
-
-      expect(res.body.note.title).toBe("New Title");
-      expect(res.body.note.content).toBe("New Content");
-      expect(res.body.note.version).toBe(2);
-
-      // Verify DB
       const updatedNote = await Note.findById(note._id);
 
       expect(updatedNote.title).toBe("New Title");
@@ -478,27 +401,23 @@ describe("Note Controller Integration Tests", () => {
       user.notes.push(note._id);
       await user.save();
 
-      const req = {
-        user: await User.findById(user._id),
-        body: {
+      const response = await request(app)
+        .post("/api/note/update")
+        .set("Cookie", [`token=${token}`])
+        .send({
           noteId: note._id.toString(),
           title: "Old Title",
           content: "Old Content",
           version: 3,
           isEncrypted: false,
-        },
-      };
+        });
 
-      const res = createRes();
+      expect(response.status).toBe(200);
+      expect(response.body.success).toBe(true);
 
-      await updateNote(req, res);
-
-      expect(res.statusCode).toBe(200);
-      expect(res.body.success).toBe(true);
-
-      expect(res.body.note._id.toString()).toBe(note._id.toString());
-      expect(res.body.note.version).toBe(5);
-      expect(res.body.note.title).toBe("Server Title");
+      expect(response.body.note._id).toBe(note._id.toString());
+      expect(response.body.note.version).toBe(5);
+      expect(response.body.note.title).toBe("Server Title");
     });
 
     it("should return the existing note when title and content are unchanged", async () => {
@@ -512,24 +431,21 @@ describe("Note Controller Integration Tests", () => {
       user.notes.push(note._id);
       await user.save();
 
-      const req = {
-        user: await User.findById(user._id),
-        body: {
+      const response = await request(app)
+        .post("/api/note/update")
+        .set("Cookie", [`token=${token}`])
+        .send({
           noteId: note._id.toString(),
           title: "Same Title",
           content: "Same Content",
           version: 5,
           isEncrypted: false,
-        },
-      };
+        });
 
-      const res = createRes();
+      expect(response.status).toBe(200);
+      expect(response.body.success).toBe(true);
 
-      await updateNote(req, res);
-
-      expect(res.statusCode).toBe(200);
-      expect(res.body.success).toBe(true);
-      expect(res.body.note._id.toString()).toBe(note._id.toString());
+      expect(response.body.note._id).toBe(note._id.toString());
     });
 
     it("should create a new note when versions are equal but content is different", async () => {
@@ -543,38 +459,32 @@ describe("Note Controller Integration Tests", () => {
       user.notes.push(note._id);
       await user.save();
 
-      const req = {
-        user: await User.findById(user._id),
-        body: {
+      const response = await request(app)
+        .post("/api/note/update")
+        .set("Cookie", [`token=${token}`])
+        .send({
           noteId: note._id.toString(),
           title: "Client Title",
           content: "Client Content",
           version: 5,
           isEncrypted: true,
-        },
-      };
+        });
 
-      const res = createRes();
+      expect(response.status).toBe(200);
+      expect(response.body.success).toBe(false);
 
-      await updateNote(req, res);
+      expect(response.body.noteFromServer._id).toBe(note._id.toString());
 
-      expect(res.statusCode).toBe(200);
-      expect(res.body.success).toBe(false);
+      expect(response.body.newNote).toBeDefined();
+      expect(response.body.newNote.title).toBe("Client Title");
+      expect(response.body.newNote.content).toBe("Client Content");
+      expect(response.body.newNote.version).toBe(5);
+      expect(response.body.newNote.isEncrypted).toBe(true);
 
-      expect(res.body.noteFromServer._id.toString()).toBe(note._id.toString());
-
-      expect(res.body.newNote).toBeDefined();
-      expect(res.body.newNote.title).toBe("Client Title");
-      expect(res.body.newNote.content).toBe("Client Content");
-      expect(res.body.newNote.version).toBe(5);
-      expect(res.body.newNote.isEncrypted).toBe(true);
-
-      // Verify two notes now exist
       const notes = await Note.find({});
 
       expect(notes).toHaveLength(2);
 
-      // Verify new note was added to user
       const updatedUser = await User.findById(user._id);
 
       expect(updatedUser.notes).toHaveLength(2);
@@ -588,28 +498,23 @@ describe("Note Controller Integration Tests", () => {
         isEncrypted: false,
       });
 
-      const req = {
-        user: await User.findById(user._id),
-        body: {
+      const response = await request(app)
+        .post("/api/note/update")
+        .set("Cookie", [`token=${token}`])
+        .send({
           noteId: note._id.toString(),
           title: "Updated",
           content: "Updated",
           version: 2,
           isEncrypted: false,
-        },
-      };
+        });
 
-      const res = createRes();
-
-      await updateNote(req, res);
-
-      expect(res.statusCode).toBe(403);
-      expect(res.body).toEqual({
+      expect(response.status).toBe(403);
+      expect(response.body).toEqual({
         success: false,
         message: "Invalid note id",
       });
 
-      // Verify note wasn't changed
       const unchangedNote = await Note.findById(note._id);
 
       expect(unchangedNote.title).toBe("Other User Note");
@@ -627,22 +532,18 @@ describe("Note Controller Integration Tests", () => {
       user.notes.push(note._id);
       await user.save();
 
-      const req = {
-        user: await User.findById(user._id),
-        body: {
+      const response = await request(app)
+        .post("/api/note/update")
+        .set("Cookie", [`token=${token}`])
+        .send({
           noteId: note._id.toString(),
           title: "Updated",
           content: "Updated",
           isEncrypted: false,
-        },
-      };
+        });
 
-      const res = createRes();
-
-      await updateNote(req, res);
-
-      expect(res.statusCode).toBe(422);
-      expect(res.body).toEqual({
+      expect(response.status).toBe(422);
+      expect(response.body).toEqual({
         success: false,
         message: "All fields are required",
       });
@@ -659,22 +560,18 @@ describe("Note Controller Integration Tests", () => {
       user.notes.push(note._id);
       await user.save();
 
-      const req = {
-        user: await User.findById(user._id),
-        body: {
+      const response = await request(app)
+        .post("/api/note/update")
+        .set("Cookie", [`token=${token}`])
+        .send({
           noteId: note._id.toString(),
           title: "Updated",
           content: "Updated",
           version: 2,
-        },
-      };
+        });
 
-      const res = createRes();
-
-      await updateNote(req, res);
-
-      expect(res.statusCode).toBe(422);
-      expect(res.body).toEqual({
+      expect(response.status).toBe(422);
+      expect(response.body).toEqual({
         success: false,
         message: "All fields are required",
       });
@@ -686,23 +583,19 @@ describe("Note Controller Integration Tests", () => {
       user.notes.push(noteId);
       await user.save();
 
-      const req = {
-        user: await User.findById(user._id),
-        body: {
+      const response = await request(app)
+        .post("/api/note/update")
+        .set("Cookie", [`token=${token}`])
+        .send({
           noteId: noteId.toString(),
           title: "Updated",
           content: "Updated",
           version: 2,
           isEncrypted: false,
-        },
-      };
+        });
 
-      const res = createRes();
-
-      await updateNote(req, res);
-
-      expect(res.statusCode).toBe(403);
-      expect(res.body).toEqual({
+      expect(response.status).toBe(403);
+      expect(response.body).toEqual({
         message: "Note not found",
       });
     });
@@ -718,32 +611,28 @@ describe("Note Controller Integration Tests", () => {
       user.notes.push(note._id);
       await user.save();
 
-      const req = {
-        user: await User.findById(user._id),
-        body: {
+      const response = await request(app)
+        .post("/api/note/update")
+        .set("Cookie", [`token=${token}`])
+        .send({
           noteId: note._id.toString(),
           title: null,
           content: null,
           version: 2,
           isEncrypted: false,
-        },
-      };
+        });
 
-      const res = createRes();
-
-      await updateNote(req, res);
-
-      expect(res.statusCode).toBe(200);
-      expect(res.body.note.title).toBe("");
-      expect(res.body.note.content).toBe("");
+      expect(response.status).toBe(200);
+      expect(response.body.note.title).toBe("");
+      expect(response.body.note.content).toBe("");
     });
   });
 
   // -------------------------------------------------------
-  // getNode
+  // GET /api/note/:noteId
   // -------------------------------------------------------
 
-  describe("getNode", () => {
+  describe("GET /api/note/:noteId", () => {
     it("should return the requested note", async () => {
       const note = await Note.create({
         title: "Test Note",
@@ -755,25 +644,18 @@ describe("Note Controller Integration Tests", () => {
       user.notes.push(note._id);
       await user.save();
 
-      const req = {
-        user: await User.findById(user._id),
-        params: {
-          noteId: note._id.toString(),
-        },
-      };
+      const response = await request(app)
+        .get(`/api/note/${note._id}`)
+        .set("Cookie", [`token=${token}`]);
 
-      const res = createRes();
+      expect(response.status).toBe(200);
+      expect(response.body.success).toBe(true);
 
-      await getNode(req, res);
-
-      expect(res.statusCode).toBe(200);
-      expect(res.body.success).toBe(true);
-
-      expect(res.body.note._id.toString()).toBe(note._id.toString());
-      expect(res.body.note.title).toBe("Test Note");
-      expect(res.body.note.content).toBe("Test Content");
-      expect(res.body.note.version).toBe(3);
-      expect(res.body.note.isEncrypted).toBe(true);
+      expect(response.body.note._id).toBe(note._id.toString());
+      expect(response.body.note.title).toBe("Test Note");
+      expect(response.body.note.content).toBe("Test Content");
+      expect(response.body.note.version).toBe(3);
+      expect(response.body.note.isEncrypted).toBe(true);
     });
 
     it("should return 403 when note does not belong to user", async () => {
@@ -784,37 +666,24 @@ describe("Note Controller Integration Tests", () => {
         isEncrypted: false,
       });
 
-      const req = {
-        user: await User.findById(user._id),
-        params: {
-          noteId: note._id.toString(),
-        },
-      };
+      const response = await request(app)
+        .get(`/api/note/${note._id}`)
+        .set("Cookie", [`token=${token}`]);
 
-      const res = createRes();
-
-      await getNode(req, res);
-
-      expect(res.statusCode).toBe(403);
-      expect(res.body).toEqual({
+      expect(response.status).toBe(403);
+      expect(response.body).toEqual({
         success: false,
         message: "Invalid note id",
       });
     });
 
-    it("should return 401 when user is missing", async () => {
-      const req = {
-        params: {
-          noteId: new mongoose.Types.ObjectId().toString(),
-        },
-      };
+    it("should return 401 when authentication is missing", async () => {
+      const noteId = new mongoose.Types.ObjectId();
 
-      const res = createRes();
+      const response = await request(app).get(`/api/note/${noteId}`);
 
-      await getNode(req, res);
-
-      expect(res.statusCode).toBe(401);
-      expect(res.body).toEqual({
+      expect(response.status).toBe(401);
+      expect(response.body).toEqual({
         success: false,
         message: "Invalid credentials",
       });
