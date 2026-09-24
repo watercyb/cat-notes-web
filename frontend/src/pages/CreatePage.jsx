@@ -1,4 +1,4 @@
-import { ArrowLeftIcon } from "lucide-react";
+import { X } from "lucide-react";
 import { useState } from "react";
 import toast from "react-hot-toast";
 import { Link, useNavigate } from "react-router";
@@ -59,23 +59,6 @@ const CreatePage = () => {
 
       <div className="container mx-auto min-w-sm px-4 py-10">
         <div className="max-w-2xl mx-auto">
-          <Link
-            to="/"
-            className="
-            mb-6
-            inline-flex
-            items-center
-            gap-2
-            font-medium
-            text-[#9A8378]
-            hover:text-[#F08A3C]
-            transition-colors
-          "
-          >
-            <ArrowLeftIcon className="size-5" />
-            Back to Notes
-          </Link>
-
           <div
             className="
             rounded-[30px]
@@ -88,6 +71,29 @@ const CreatePage = () => {
             p-10
           "
           >
+            {/* Close */}
+            <button
+              type="button"
+              onClick={() => navigate("/")}
+              aria-label="Close"
+              className="
+                absolute
+                right-6
+                top-6
+                flex
+                size-9
+                items-center
+                justify-center
+                rounded-full
+                text-[#7A6258]
+                transition-colors
+                hover:bg-[#F5E8DF]
+                hover:text-[#D95F02]
+                "
+            >
+              <X className="size-5" />
+            </button>
+
             <h2
               className="
               mb-6
