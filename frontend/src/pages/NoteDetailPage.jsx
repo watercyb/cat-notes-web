@@ -7,7 +7,8 @@ import useNoteStore from "../stores/useNoteStore";
 import PasswordDialog from "../components/NotePasswordDialog";
 import { decryptText, encryptText } from "../utils/crypto";
 const NoteDetailPage = () => {
-  const { notes, isUploading, deleteNote, updateNote } = useNoteStore();
+  const { notes, isUploading, deleteNote, updateNote, getNote } =
+    useNoteStore();
 
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
@@ -17,30 +18,38 @@ const NoteDetailPage = () => {
   const [showConfirm, setShowConfirm] = useState(false);
   const [showContent, setShowContent] = useState(false);
   const [password, setPassword] = useState("");
+  const [isLoadedNode, setIsLoadedNode] = useState(false);
 
   const navigate = useNavigate();
 
   const { id } = useParams();
 
   useEffect(() => {
-    const note = notes.find((item) => item._id === id);
-    if (!note) {
-      toast.error("Note not found. Please refresh the page and try again.", {
-        id: "note-error",
-      });
-      navigate("/");
-    } else {
-      if (note.isEncrypted) {
-        setShowConfirm(false);
-        setShowDialog(true);
+    const reloadNode = async () => {
+      await getNote(id);
+      setIsLoadedNode(true);
+      const note = notes.find((item) => item._id === id);
+      if (!note) {
+        toast.error("Note not found. Please refresh the page and try again.", {
+          id: "note-error",
+        });
+        navigate("/");
       } else {
-        setShowContent(true);
+        if (note.isEncrypted) {
+          setShowConfirm(false);
+          setShowDialog(true);
+        } else {
+          setShowContent(true);
+        }
+        setTitle(note.title);
+        setContent(note.content);
+        setVersion(note.version + 1);
+        setIsEncrypted(note.isEncrypted);
       }
-      setTitle(note.title);
-      setContent(note.content);
-      setVersion(note.version + 1);
-      setIsEncrypted(note.isEncrypted);
-    }
+    };
+
+    reloadNode();
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, isEncrypted, navigate]);
 
@@ -70,52 +79,64 @@ const NoteDetailPage = () => {
 
   return (
     <>
-      <PasswordDialog
-        open={showDialog}
-        showConfirm={showConfirm}
-        onClose={() => {
-          setShowDialog(false);
-          if (!showConfirm) navigate("/");
-        }}
-        onConfirm={async (password) => {
-          if (!showConfirm) {
-            try {
-              setContent(await decryptText(password, content));
-              setShowContent(true);
-              setPassword(password);
-            } catch {
-              toast.error("Invalid password");
-              navigate("/");
-            }
-          } else {
-            if (password) {
-              setPassword(password);
+      {!isLoadedNode && (
+        <div className="mx-2 my-8 flex min-h-40 min-w-65 items-center justify-center rounded-2xl border border-gray-200 bg-white shadow-lg">
+          <div className="flex flex-col items-center gap-4">
+            <div className="h-8 w-8 animate-spin rounded-full border-[3px] border-gray-200 border-t-primary" />
+            <div className="text-sm font-medium text-gray-600">
+              Loading note...
+            </div>
+          </div>
+        </div>
+      )}
+      {isLoadedNode && (
+        <>
+          <PasswordDialog
+            open={showDialog}
+            showConfirm={showConfirm}
+            onClose={() => {
+              setShowDialog(false);
+              if (!showConfirm) navigate("/");
+            }}
+            onConfirm={async (password) => {
+              if (!showConfirm) {
+                try {
+                  setContent(await decryptText(password, content));
+                  setShowContent(true);
+                  setPassword(password);
+                } catch {
+                  toast.error("Invalid password");
+                  navigate("/");
+                }
+              } else {
+                if (password) {
+                  setPassword(password);
 
-              if (
-                await updateNote(
-                  id,
-                  title,
-                  await encryptText(password, content),
-                  version,
-                  isEncrypted,
-                )
-              ) {
-                navigate("/");
+                  if (
+                    await updateNote(
+                      id,
+                      title,
+                      await encryptText(password, content),
+                      version,
+                      isEncrypted,
+                    )
+                  ) {
+                    navigate("/");
+                  }
+
+                  setVersion(version + 1);
+                  toast.success("Password updated");
+                } else {
+                  toast.error("Password cannot be empty");
+                }
               }
 
-              setVersion(version + 1);
-              toast.success("Password updated");
-            } else {
-              toast.error("Password cannot be empty");
-            }
-          }
+              setShowDialog(false);
+            }}
+          />
 
-          setShowDialog(false);
-        }}
-      />
-
-      <div
-        className="
+          <div
+            className="
         min-w-xl
         bg-linear-to-br
         from-[#FFF7F2]
@@ -124,21 +145,21 @@ const NoteDetailPage = () => {
         px-4
         py-4
       "
-      >
-        <div className="container mx-auto">
-          <div className="max-w-6xl mx-auto">
-            {/* Page actions */}
-            <div
-              className="
+          >
+            <div className="container mx-auto">
+              <div className="max-w-6xl mx-auto">
+                {/* Page actions */}
+                <div
+                  className="
               flex
               items-center
               justify-between
               mb-3
             "
-            >
-              <Link
-                to="/"
-                className="
+                >
+                  <Link
+                    to="/"
+                    className="
                 inline-flex
                 items-center
                 gap-2
@@ -147,14 +168,14 @@ const NoteDetailPage = () => {
                 hover:text-[#F08A3C]
                 transition
               "
-              >
-                <ArrowLeftIcon className="size-5" />
-                Back to Notes
-              </Link>
+                  >
+                    <ArrowLeftIcon className="size-5" />
+                    Back to Notes
+                  </Link>
 
-              <button
-                onClick={handleDelete}
-                className="
+                  <button
+                    onClick={handleDelete}
+                    className="
                 inline-flex
                 items-center
                 gap-2
@@ -168,15 +189,15 @@ const NoteDetailPage = () => {
                 hover:bg-rose-50
                 transition
               "
-              >
-                <Trash2Icon className="size-5" />
-                Delete Note
-              </button>
-            </div>
+                  >
+                    <Trash2Icon className="size-5" />
+                    Delete Note
+                  </button>
+                </div>
 
-            {/* Editor */}
-            <div
-              className="
+                {/* Editor */}
+                <div
+                  className="
               rounded-[30px]
               border
               border-white/50
@@ -187,21 +208,21 @@ const NoteDetailPage = () => {
               px-10
               py-5
             "
-            >
-              <div className="flex items-center justify-between mb-6">
-                <h1
-                  className="
+                >
+                  <div className="flex items-center justify-between mb-6">
+                    <h1
+                      className="
                   text-3xl
                   font-black
                   text-[#5B4A42]
                 "
-                >
-                  Note Detail 🐱
-                </h1>
+                    >
+                      Note Detail 🐱
+                    </h1>
 
-                {isEncrypted && (
-                  <span
-                    className="
+                    {isEncrypted && (
+                      <span
+                        className="
                     rounded-full
                     px-4
                     py-1
@@ -212,29 +233,29 @@ const NoteDetailPage = () => {
                     font-semibold
                     text-[#F08A3C]
                   "
-                  >
-                    🔒 Encrypted
-                  </span>
-                )}
-              </div>
+                      >
+                        🔒 Encrypted
+                      </span>
+                    )}
+                  </div>
 
-              {/* Title */}
-              <div className="mb-6">
-                <label
-                  className="
+                  {/* Title */}
+                  <div className="mb-6">
+                    <label
+                      className="
                   block
                   mb-2
                   font-semibold
                   text-[#8E766C]
                 "
-                >
-                  Title
-                </label>
+                    >
+                      Title
+                    </label>
 
-                <input
-                  type="text"
-                  placeholder="Note title"
-                  className="
+                    <input
+                      type="text"
+                      placeholder="Note title"
+                      className="
                   w-full
                   rounded-2xl
                   border
@@ -248,28 +269,28 @@ const NoteDetailPage = () => {
                   focus:ring-2
                   focus:ring-orange-200
                 "
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                />
-              </div>
+                      value={title}
+                      onChange={(e) => setTitle(e.target.value)}
+                    />
+                  </div>
 
-              {/* Content */}
-              {showContent && (
-                <div className="mb-8">
-                  <label
-                    className="
+                  {/* Content */}
+                  {showContent && (
+                    <div className="mb-8">
+                      <label
+                        className="
                     block
                     mb-2
                     font-semibold
                     text-[#8E766C]
                   "
-                  >
-                    Content
-                  </label>
+                      >
+                        Content
+                      </label>
 
-                  <textarea
-                    placeholder="Write your note here..."
-                    className="
+                      <textarea
+                        placeholder="Write your note here..."
+                        className="
                         w-full
                         min-h-64
                         min-w-xl
@@ -288,24 +309,24 @@ const NoteDetailPage = () => {
                         focus:ring-2
                         focus:ring-orange-200
                     "
-                    value={content}
-                    onChange={(e) => setContent(e.target.value)}
-                  />
-                </div>
-              )}
+                        value={content}
+                        onChange={(e) => setContent(e.target.value)}
+                      />
+                    </div>
+                  )}
 
-              {/* Footer */}
-              <div
-                className="
+                  {/* Footer */}
+                  <div
+                    className="
                 flex
                 items-center
                 justify-between
               "
-              >
-                {isEncrypted ? (
-                  <button
-                    onClick={changePassword}
-                    className="
+                  >
+                    {isEncrypted ? (
+                      <button
+                        onClick={changePassword}
+                        className="
                     rounded-2xl
                     px-5
                     py-3
@@ -317,15 +338,15 @@ const NoteDetailPage = () => {
                     hover:bg-[#FCEFE5]
                     transition
                   "
-                  >
-                    🔑 Update Password
-                  </button>
-                ) : (
-                  <div />
-                )}
+                      >
+                        🔑 Update Password
+                      </button>
+                    ) : (
+                      <div />
+                    )}
 
-                <button
-                  className="
+                    <button
+                      className="
                   rounded-2xl
                   px-8
                   py-3
@@ -340,16 +361,18 @@ const NoteDetailPage = () => {
                   transition-all
                   disabled:opacity-60
                 "
-                  disabled={isUploading}
-                  onClick={handleSave}
-                >
-                  {isUploading ? "Saving..." : "Save Changes ✨"}
-                </button>
+                      disabled={isUploading}
+                      onClick={handleSave}
+                    >
+                      {isUploading ? "Saving..." : "Save Changes ✨"}
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      </div>
+        </>
+      )}
     </>
   );
 };

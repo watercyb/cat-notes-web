@@ -2,11 +2,12 @@ import { create } from "zustand";
 import axiosInstance from "../utils/axios";
 import toast from "react-hot-toast";
 
-const useNoteStore = create((set) => ({
+const useNoteStore = create((set, get) => ({
   notes: [],
   isLoading: false,
   isUploading: false,
   isRateLimited: false,
+  isLoadingNode: false,
 
   getNotes: async () => {
     try {
@@ -123,6 +124,35 @@ const useNoteStore = create((set) => ({
 
   clearRateLimit: () => {
     set({ isRateLimited: false });
+  },
+
+  getNote: async (id) => {
+    try {
+      set({ isLoadingNode: true, isRateLimited: false });
+      const res = await axiosInstance.get("/note/" + id);
+
+      if (res.data?.success) {
+        set({
+          notes: [
+            ...get().notes.filter((note) => note._id != id),
+            res.data.note,
+          ],
+        });
+      }
+    } catch (error) {
+      console.log(error);
+      if (error.response.status == 429) {
+        set({ isRateLimited: true });
+      } else if (error.response.status == 403) {
+        set({
+          notes: [...get().notes.filter((note) => note._id != id)],
+        });
+      } else {
+        toast.error("Failed to get notes: " + error.response.data.message);
+      }
+    } finally {
+      set({ isLoadingNode: false });
+    }
   },
 }));
 
