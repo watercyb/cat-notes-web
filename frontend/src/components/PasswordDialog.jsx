@@ -1,8 +1,11 @@
+import { useEffect } from "react";
+import { useRef } from "react";
 import { useState } from "react";
 
 const PasswordDialog = ({ open, showConfirm, onClose, onConfirm }) => {
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
+  const inputRef = useRef(null);
 
   const handleConfirm = () => {
     if (confirm && password !== confirm) {
@@ -14,6 +17,12 @@ const PasswordDialog = ({ open, showConfirm, onClose, onConfirm }) => {
     setPassword("");
     setConfirm("");
   };
+
+  useEffect(() => {
+    if (open) {
+      inputRef.current?.focus();
+    }
+  }, [open]);
 
   if (!open) return null;
 
@@ -59,6 +68,7 @@ const PasswordDialog = ({ open, showConfirm, onClose, onConfirm }) => {
 
         <div className="py-4 space-y-4">
           <input
+            ref={inputRef}
             type="password"
             placeholder="Password"
             className="
@@ -79,6 +89,11 @@ const PasswordDialog = ({ open, showConfirm, onClose, onConfirm }) => {
           "
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                handleConfirm();
+              }
+            }}
           />
 
           {showConfirm && (

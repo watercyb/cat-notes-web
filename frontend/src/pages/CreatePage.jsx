@@ -3,7 +3,7 @@ import { useState } from "react";
 import toast from "react-hot-toast";
 import { Link, useNavigate } from "react-router";
 import useNoteStore from "../stores/useNoteStore";
-import PasswordDialog from "../components/NotePasswordDialog";
+import PasswordDialog from "../components/PasswordDialog";
 import { encryptText } from "../utils/crypto";
 
 const CreatePage = () => {

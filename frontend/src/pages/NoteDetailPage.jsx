@@ -4,7 +4,7 @@ import { Link, useNavigate, useParams } from "react-router";
 import toast from "react-hot-toast";
 import { ArrowLeftIcon, LoaderIcon, Trash2Icon } from "lucide-react";
 import useNoteStore from "../stores/useNoteStore";
-import PasswordDialog from "../components/NotePasswordDialog";
+import PasswordDialog from "../components/PasswordDialog";
 import { decryptText, encryptText } from "../utils/crypto";
 const NoteDetailPage = () => {
   const { notes, isUploading, deleteNote, updateNote, getNote } =
@@ -135,39 +135,14 @@ const NoteDetailPage = () => {
             }}
           />
 
-          <div
-            className="
-        min-w-xl
-        bg-linear-to-br
-        from-[#FFF7F2]
-        via-[#FFF9F5]
-        to-[#FCEFE5]
-        px-4
-        py-4
-      "
-          >
+          <div className=" min-w-xl bg-linear-to-br from-[#FFF7F2] via-[#FFF9F5] to-[#FCEFE5] px-4 py-4">
             <div className="container mx-auto">
               <div className="max-w-6xl mx-auto">
                 {/* Page actions */}
-                <div
-                  className="
-              flex
-              items-center
-              justify-between
-              mb-3
-            "
-                >
+                <div className="flex items-center justify-between mb-3 ">
                   <Link
                     to="/"
-                    className="
-                inline-flex
-                items-center
-                gap-2
-                text-[#9A8378]
-                font-medium
-                hover:text-[#F08A3C]
-                transition
-              "
+                    className="inline-flex items-center gap-2 text-[#9A8378] font-medium hover:text-[#F08A3C] transition "
                   >
                     <ArrowLeftIcon className="size-5" />
                     Back to Notes
@@ -175,20 +150,7 @@ const NoteDetailPage = () => {
 
                   <button
                     onClick={handleDelete}
-                    className="
-                inline-flex
-                items-center
-                gap-2
-                rounded-2xl
-                px-4
-                py-2
-                border
-                border-rose-200
-                bg-white/60
-                text-rose-500
-                hover:bg-rose-50
-                transition
-              "
+                    className=" inline-flex items-center gap-2 rounded-2xl px-4 py-2 border border-rose-200 bg-white/60 text-rose-500 hover:bg-rose-50transition"
                   >
                     <Trash2Icon className="size-5" />
                     Delete Note
@@ -196,19 +158,7 @@ const NoteDetailPage = () => {
                 </div>
 
                 {/* Editor */}
-                <div
-                  className="
-              rounded-[30px]
-              border
-              border-white/50
-              bg-white/80
-              backdrop-blur-xl
-              shadow-2xl
-              shadow-orange-200/30
-              px-10
-              py-5
-            "
-                >
+                <div className="rounded-[30px] border border-white/50 bg-white/80  backdrop-blur-xl shadow-2xl shadow-orange-200/30 px-10 py-5">
                   <div className="flex items-center justify-between mb-6">
                     <h1
                       className="
