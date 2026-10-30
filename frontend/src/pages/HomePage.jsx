@@ -14,8 +14,8 @@ const HomePage = () => {
         {isLoading && (
           <div className="mx-2 my-8 flex min-h-40 min-w-65 items-center justify-center rounded-2xl border border-gray-200 bg-white shadow-lg">
             <div className="flex flex-col items-center gap-4">
-              <div className="h-8 w-8 animate-spin rounded-full border-[3px] border-gray-200 border-t-primary" />
-              <div className="text-sm font-medium text-gray-600">
+              <div className="h-8 w-8 animate-spin rounded-full border-[3px] border-gray-200 border-t-[#F08A3C]" />
+              <div className="text-md font-medium text-[#F08A3C]">
                 Loading notes...
               </div>
             </div>
